@@ -1,2 +1,2 @@
 # Valence-coupled-burstiness
-Supplementary Information for Heimburg et al. (2024b)
+Supplementary Information for Heimburg et al. (2024)
