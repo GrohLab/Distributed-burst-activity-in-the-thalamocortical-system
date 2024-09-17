@@ -8,6 +8,4 @@
 
 [LINK TO DOI](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
 
-<a href="https://www.google.com" target="_blank">Visit Google</a>
-
 A preprint of the study can be found at [bioRxiv](https://www.biorxiv.org/)
