@@ -2,3 +2,10 @@
 
 | File | Description |
 |----------|----------|
+
+#### Necessary MATLAB Toolboxes
+	I) 'Signal Processing Toolbox'
+	II) 'Deep Learning Toolbox'
+	III) 'Statistics and Machine Learning Toolbox'
+	IV) 'Communications Toolbox'
+	V) 'Image Processing Toolbox'
