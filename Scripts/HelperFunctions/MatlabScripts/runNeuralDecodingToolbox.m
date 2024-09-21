@@ -147,7 +147,7 @@ if ~exist(binned_data_file_name,'file')
 
     % Get the responseTypes.mat file (narrow&wide) to assess touch responses
     scriptFullPath = matlab.desktop.editor.getActiveFilename();
-    load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\userDataPath.mat'), 'cohortPath');
+    load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\\userDataPath.mat'), 'cohortPath');
     responseDir = fullfile(cohortPath, 'Analysis-Figures\Burstiness-Scatter');
     responseFile = fullfile(responseDir,stageFold{end},sprintf('responseTypes_%s_%s.mat',condition,strjoin(trialCompare,'&')));
 

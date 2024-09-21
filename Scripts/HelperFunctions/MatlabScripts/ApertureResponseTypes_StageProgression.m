@@ -3,7 +3,7 @@
 close all; clearvars; clc;
 % Make the user pick the two "ResponsePattern" mat files to compare
 scriptFullPath = matlab.desktop.editor.getActiveFilename();
-load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\userDataPath.mat'), 'cohortPath');
+load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\\userDataPath.mat'), 'cohortPath');
 startPath = fullfile(cohortPath,'Analysis-Figures\Burstiness-Analysis');
 
 load(fullfile(cohortPath,'animalData.mat'))

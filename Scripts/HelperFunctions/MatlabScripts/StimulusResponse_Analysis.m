@@ -8,7 +8,7 @@ clc
 
 % Access correct individual
 scriptFullPath = matlab.desktop.editor.getActiveFilename();
-load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\userDataPath.mat'), 'cohortPath');
+load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\\userDataPath.mat'), 'cohortPath');
 try
     load(fullfile(cohortPath,'animalData.mat'))
 catch

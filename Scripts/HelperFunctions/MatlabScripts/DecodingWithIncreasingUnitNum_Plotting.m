@@ -6,7 +6,7 @@ close all; clearvars; clc
 
 % Choose sessions to plot
 scriptFullPath = matlab.desktop.editor.getActiveFilename();
-load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\userDataPath.mat'), 'cohortPath');
+load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\\userDataPath.mat'), 'cohortPath');
 
 FileInfo = dir(fullfile(cohortPath,'Decoding-with-increasing-cellNum'));
 FileInfo = FileInfo(3:end,:); FileInfo = FileInfo([FileInfo.isdir],:);

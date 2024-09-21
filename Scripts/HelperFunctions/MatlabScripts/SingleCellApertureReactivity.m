@@ -13,8 +13,10 @@ clc
 % directories. For more general usage, create an "analyzed_files.mat" file
 % for the StimulusResponse_Analysis script.
 scriptFullPath = matlab.desktop.editor.getActiveFilename();
-load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\userDataPath.mat'), 'cohortPath');
+load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\\userDataPath.mat'), 'cohortPath');
 load(fullfile(cohortPath,'allFiles.mat'),'FileInfo')
+updatedFolders = fullfile(cohortPath,{FileInfo.folder});
+[FileInfo.folder] = deal(updatedFolders{:});
 AllFiles = fullfile(fileparts({FileInfo.folder}), 'intan-signals\automatedCuration')';
 
 % Access correct individual

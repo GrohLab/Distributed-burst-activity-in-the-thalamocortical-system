@@ -4,12 +4,14 @@
 % accuracy of each step.
 close all; clearvars; clc
 scriptFullPath = matlab.desktop.editor.getActiveFilename();
-load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\userDataPath.mat'), 'cohortPath');
+load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\\userDataPath.mat'), 'cohortPath');
 
 % Choose sessions to merge together
 try
     load(fullfile(cohortPath,'animalData.mat'))
     load(fullfile(cohortPath,'allFiles.mat'),'FileInfo')
+    updatedFolders = fullfile(cohortPath,{FileInfo.folder});
+    [FileInfo.folder] = deal(updatedFolders{:});
 catch
 end
 

@@ -20,7 +20,7 @@ function num_amplifier_samples = Intan_sampleNum(varargin)
 % If user calls with specific filename, skip questionnaire
 if nargin == 0
     scriptFullPath = matlab.desktop.editor.getActiveFilename();
-    load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\userDataPath.mat'), 'cohortPath');
+    load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\\userDataPath.mat'), 'cohortPath');
 
     [file, path, ~] = ...
         uigetfile(fullfile(cohortPath,'*.rhd'), 'Select an RHD2000 Data File', 'MultiSelect', 'off');

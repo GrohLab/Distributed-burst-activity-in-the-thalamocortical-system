@@ -33,7 +33,7 @@ trialType = trialType(trialPick);
 
 % Pick stages to compare
 scriptFullPath = matlab.desktop.editor.getActiveFilename();
-load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\userDataPath.mat'), 'cohortPath');
+load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\\userDataPath.mat'), 'cohortPath');
 startPath = fullfile(cohortPath,'Analysis-Figures\Burstiness-Scatter');
 analyzedStages = dir(startPath);
 analyzedStages = analyzedStages([analyzedStages.isdir]);

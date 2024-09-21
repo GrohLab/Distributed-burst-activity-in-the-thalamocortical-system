@@ -3,10 +3,12 @@ close all; clearvars; clc
 
 % Access correct individual
 scriptFullPath = matlab.desktop.editor.getActiveFilename();
-load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\userDataPath.mat'), 'cohortPath');
+load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\\userDataPath.mat'), 'cohortPath');
 try
     load(fullfile(cohortPath, 'animalData.mat'))
     load(fullfile(cohortPath, 'allFiles.mat'),'FileInfo')
+    updatedFolders = fullfile(cohortPath,{FileInfo.folder});
+    [FileInfo.folder] = deal(updatedFolders{:});
 catch
 end
 
