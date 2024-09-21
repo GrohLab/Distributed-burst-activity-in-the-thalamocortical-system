@@ -32,7 +32,9 @@ assert(numel(trialPick)==2,...
 trialType = trialType(trialPick);
 
 % Pick stages to compare
-startPath = 'Z:\Filippo\Animals\Cohort12_33-38\Analysis-Figures\Burstiness-Scatter';
+scriptFullPath = matlab.desktop.editor.getActiveFilename();
+load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\userDataPath.mat'), 'cohortPath');
+startPath = fullfile(cohortPath,'Analysis-Figures\Burstiness-Scatter');
 analyzedStages = dir(startPath);
 analyzedStages = analyzedStages([analyzedStages.isdir]);
 analyzedStages = {analyzedStages(3:end).name};
@@ -415,7 +417,6 @@ end
 
 %% Save figures
 % Destination folder for matlab .fig files
-cohortPath = 'Z:\Filippo\Animals\Cohort12_33-38';
 definput = strjoin(analyzedStages(stagePick),'&');
 stageDescription = inputdlg('Enter a description of the stages for saving the files:','Output Folder',[1 150],{definput});
 destfold = fullfile(cohortPath,'Analysis-Figures','Burstiness-Bias',stageDescription{:});

@@ -1,7 +1,9 @@
 %% Visualize individual responses upon stimulus presentation
 close all; clearvars; clc;
 % Make the user pick the two "ResponsePattern" mat files to compare
-startPath = 'Z:\Filippo\Animals\Cohort12_33-38\Analysis-Figures\Burstiness-Analysis';
+scriptFullPath = matlab.desktop.editor.getActiveFilename();
+load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\userDataPath.mat'), 'cohortPath');
+startPath = fullfile(cohortPath,'Analysis-Figures\Burstiness-Analysis');
 
 burstResponses = cell(1,2);
 tonicResponses = cell(1,2);
@@ -55,7 +57,6 @@ for trialType = 1:2
 end
 
 % Destination folder for matlab .fig files
-cohortPath = 'Z:\Filippo\Animals\Cohort12_33-38';
 destfold = fullfile(cohortPath,'Analysis-Figures','Burstiness-Scatter',stageDescript);
 if exist(destfold,"dir") == 0
     mkdir(destfold)

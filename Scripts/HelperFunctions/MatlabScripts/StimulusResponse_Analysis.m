@@ -7,23 +7,24 @@ clearvars
 clc
 
 % Access correct individual
-startPath = 'Z:\Filippo\Animals';
+scriptFullPath = matlab.desktop.editor.getActiveFilename();
+load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\userDataPath.mat'), 'cohortPath');
 try
-    load(fullfile(startPath,'animalData.mat'))
+    load(fullfile(cohortPath,'animalData.mat'))
 catch
     fprintf('\nNo animalData.mat file loaded.\n')
 end
 
-startPath = uigetdir(startPath,'Select an Animal');
-if ~startPath
+cohortPath = uigetdir(cohortPath,'Select an Animal');
+if ~cohortPath
     fprintf(2,'\nNo start path was selected.\n\n')
     return
-elseif exist(startPath,'dir')==0
+elseif exist(cohortPath,'dir')==0
     fprintf(2,'\nYour start path is non existing.')
     fprintf(2,'\nChoose a different one.\n\n')
     return
 else
-    [~,animalName,~] = fileparts(startPath);
+    [~,animalName,~] = fileparts(cohortPath);
     if isempty(regexp(animalName,'#\d','once')) || regexp(animalName,'#\d') ~= 1
         fprintf(2,'\nYour start path is not an animal directory.')
         fprintf(2,'\nChoose a different one.\n\n')
@@ -32,10 +33,10 @@ else
 end
 
 % Get the relevant variables of each animal from animalData.mat
-cohort_str = getCohort(startPath);
+cohort_str = getCohort(cohortPath);
 cohort_num = str2double(regexp(cohort_str,'\d*','match'));
 
-cohort_animals = dir(fullfile(fileparts(startPath),'#*'));
+cohort_animals = dir(fullfile(fileparts(cohortPath),'#*'));
 animal_num = find(strcmp({cohort_animals.name},animalName));
 
 area_names = {'BC','VPM','POm','ZIv'};
@@ -50,7 +51,7 @@ switch answer
     case 'No'
         targetEstimate = true;
         try
-            load(fullfile(startPath,'targetHit.mat'),'targetHit')
+            load(fullfile(cohortPath,'targetHit.mat'),'targetHit')
         catch
             fprintf(2,'\nNo targetHit.mat file. Progress with unfiltered analysis...\n')
             targetEstimate = false;
@@ -60,8 +61,8 @@ switch answer
         return
 end
 
-fprintf('\nLooking for automatically curated files in ''%s'' ...\n',startPath)
-FileInfo = dir(fullfile(startPath,'**\*automatedCuration'));
+fprintf('\nLooking for automatically curated files in ''%s'' ...\n',cohortPath)
+FileInfo = dir(fullfile(cohortPath,'**\*automatedCuration'));
 fprintf('Files collected!\n')
 
 % Choose files to analyze

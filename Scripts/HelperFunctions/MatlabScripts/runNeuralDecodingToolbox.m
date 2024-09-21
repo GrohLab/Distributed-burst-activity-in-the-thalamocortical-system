@@ -144,11 +144,11 @@ DecodeFig = figure;
 if ~exist(binned_data_file_name,'file')
     % This is where the responseType files are generated and stored
     stageFold = strsplit(raster_data_dir, '\');
-    % CAVE: ONLY FOR TIME SHIFT EXPERIMENTS (DELETE WHEN NOT NECESSARY ANYMORE)
-    % ENTER ORIGINAL STAGE DESCRIPTION HERE TO ACCESS CELL TYPES
-    %     stageFold = {'stage2-dprime1.65_Inf'};
+
     % Get the responseTypes.mat file (narrow&wide) to assess touch responses
-    responseDir = 'Z:\Filippo\Animals\Cohort12_33-38\Analysis-Figures\Burstiness-Scatter';
+    scriptFullPath = matlab.desktop.editor.getActiveFilename();
+    load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\userDataPath.mat'), 'cohortPath');
+    responseDir = fullfile(cohortPath, 'Analysis-Figures\Burstiness-Scatter');
     responseFile = fullfile(responseDir,stageFold{end},sprintf('responseTypes_%s_%s.mat',condition,strjoin(trialCompare,'&')));
 
     switch unitType
@@ -287,9 +287,7 @@ end
 % To get reasonable results you usually need at least 5 repetitions of each condition
 load(binned_data_file_name,'binned_labels','binned_data');  % load the binned data
 num_units = numel(binned_data);
-% the docs say that for neural data you need at least 100 recording sites
-% since the results are also robust with fewer units, I will just indicate
-% a low number of recorded units.
+
 fprintf('\nTotal number of units: %d\n',num_units)
 fprintf('A unit count below 5 can lead to inaccurate results.\n')
 

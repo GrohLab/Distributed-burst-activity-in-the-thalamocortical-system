@@ -4,8 +4,6 @@ function correctManifestFile(manifest_file, attributes_file)
 % ("data_aux.parts).
 % This function serves as to correct these errors.
 
-addpath 'Z:\Filippo\Scripts\GitHub\matlab-toml\toml'
-
 manifest_struct = read(manifest_file);
 
 % Check if two data field were created for data_aux (timestamps)

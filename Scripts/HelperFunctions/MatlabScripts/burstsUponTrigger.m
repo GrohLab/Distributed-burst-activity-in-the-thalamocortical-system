@@ -14,9 +14,11 @@ close all; clearvars; clc
 fileVersion = 2; 
 
 % Access correct individual
+scriptFullPath = matlab.desktop.editor.getActiveFilename();
+load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\userDataPath.mat'), 'cohortPath');
 try
-    load('Z:\Filippo\Animals\animalData.mat')
-    load('Z:\Filippo\Animals\Cohort12_33-38\allFiles.mat','FileInfo')
+    load(fullfile(cohortPath, 'animalData.mat'))
+    load(fullfile(cohortPath, 'allFiles.mat'),'FileInfo')
 catch
 end
 
@@ -74,12 +76,6 @@ else
         fileSelection = fullfile(fileparts(fileparts(all_sesNames)),'intan-signals\automatedCuration');
     end
 end
-
-% Exclude these files, since they are corrupted
-fileSelection = fileSelection(~contains(fileSelection, 'Z:\Filippo\Animals\Cohort12_33-38\#35\2021-11-11\P3.2_50pctReward_session12\intan-signals\automatedCuration'));
-fileSelection = fileSelection(~contains(fileSelection, 'Z:\Filippo\Animals\Cohort12_33-38\#37\2021-12-01\P3.5_ruleswitch_lidocaine_session02\intan-signals\automatedCuration'));
-fileSelection = fileSelection(~contains(fileSelection, 'Z:\Filippo\Animals\Cohort12_33-38\#33\2021-12-08\P3.7_initial_rules_session02\intan-signals\automatedCuration'));
-fileSelection = fileSelection(~contains(fileSelection, 'Z:\Filippo\Animals\Cohort12_33-38\#33\2021-12-13\P3.7_initial_rules_session13\intan-signals\automatedCuration'));
 
 filesMissing = cellfun(@isfile, fullfile(fileSelection, 'BurstinessData.mat'));
 assert(all(filesMissing),'burstsUponTrigger:notFullyAnalyzed',...
@@ -772,7 +768,6 @@ end
 
 %% Save figures
 % Destination folder for matlab .fig files
-cohortPath = 'Z:\Filippo\Animals\Cohort12_33-38';
 destfold = fullfile(cohortPath,'Analysis-Figures','Burstiness-Analysis',sessionDescription{:});
 if exist(destfold,"dir") == 0
     mkdir(destfold)

@@ -3,11 +3,13 @@
 % units. By bootstrapping each step, one can define the average decoding
 % accuracy of each step.
 close all; clearvars; clc
-cohortDir = 'Z:\Filippo\Animals\Cohort12_33-38';
+scriptFullPath = matlab.desktop.editor.getActiveFilename();
+load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\userDataPath.mat'), 'cohortPath');
+
 % Choose sessions to merge together
 try
-    load('Z:\Filippo\Animals\animalData.mat')
-    load(fullfile(cohortDir,'allFiles.mat'),'FileInfo')
+    load(fullfile(cohortPath,'animalData.mat'))
+    load(fullfile(cohortPath,'allFiles.mat'),'FileInfo')
 catch
 end
 
@@ -69,10 +71,6 @@ else
     end
 end
 
-% Exclude this file, since it is corrupted
-fileSelection = fileSelection(~contains(fileSelection, 'Z:\Filippo\Animals\Cohort12_33-38\#35\2021-11-11\P3.2_50pctReward_session12\intan-signals\automatedCuration'));
-fileSelection = fileSelection(~contains(fileSelection, 'Z:\Filippo\Animals\Cohort12_33-38\#37\2021-12-01\P3.5_ruleswitch_lidocaine_session02\intan-signals\automatedCuration'));
-
 if exist('stageNum','var')
     if contains(prompt{performancePick},'two')
         suffix = lower(strrep(prompt{performancePick},' two ','2'));
@@ -87,13 +85,13 @@ if exist('stageNum','var')
     sessionDescription = inputdlg('Enter a session description for saving the files:','Output Folder',[1 100],{definput});
     % Raster data folder
     rasterDataName = inputdlg('Name of raster data folder:','Raster Data Folder',[1 100],{definput});
-    raster_data_dir = fullfile(cohortDir,'NeuralDecoding',rasterDataName{:});
+    raster_data_dir = fullfile(cohortPath,'NeuralDecoding',rasterDataName{:});
 else
     % Output folder
     sessionDescription = inputdlg('Enter a session description for saving the files:','Output Folder',[1 100]);
     % Raster data folder
     rasterDataName = inputdlg('Name of raster data folder:','Raster Data Folder',[1 100]);
-    raster_data_dir = fullfile(cohortDir,'NeuralDecoding',rasterDataName{:});
+    raster_data_dir = fullfile(cohortPath,'NeuralDecoding',rasterDataName{:});
 end
 
 % Choose condition to analyze
@@ -229,7 +227,7 @@ if ismember(cellSpecs,[2,3,4]) % For tonic and burst modulation
     trialCompare = trialCompareList(trialPick);
     
     % Get the responseTypes.mat file (narrow&wide) to assess touch responses 
-    responseDir = 'Z:\Filippo\Animals\Cohort12_33-38\Analysis-Figures\Burstiness-Scatter';
+    responseDir = fullfile(cohortPath,'Analysis-Figures\Burstiness-Scatter');
     responseFile = fullfile(responseDir,definput,sprintf('responseTypes_%s_%s.mat',chCond,strjoin(trialCompare,'&')));
 
     if ~exist(responseFile,'file')
@@ -358,7 +356,7 @@ for ar = 1:numel(area_names)+1
             run,tempAreaName,maxCells,find(run==numRuns),min([numel(numRuns),maxCells]))
         
         % Save bootstrapped files in a subfolder for each cell count
-        outputFolder = fullfile('Z:\Filippo\Animals\Cohort12_33-38\Decoding-with-increasing-cellNum',sessionDescription{:},tempAreaName,sprintf('%03icells',run));
+        outputFolder = fullfile(cohortPath,'Decoding-with-increasing-cellNum',sessionDescription{:},tempAreaName,sprintf('%03icells',run));
         if exist(outputFolder,"dir") == 0
             mkdir(outputFolder)
         end

@@ -5,8 +5,10 @@
 close all; clearvars; clc
 
 % Choose sessions to plot
-cohortDir = 'Z:\Filippo\Animals\Cohort12_33-38';
-FileInfo = dir(fullfile(cohortDir,'Decoding-with-increasing-cellNum'));
+scriptFullPath = matlab.desktop.editor.getActiveFilename();
+load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\userDataPath.mat'), 'cohortPath');
+
+FileInfo = dir(fullfile(cohortPath,'Decoding-with-increasing-cellNum'));
 FileInfo = FileInfo(3:end,:); FileInfo = FileInfo([FileInfo.isdir],:);
 
 trialTypeList = {'allTrials','onlyGo','onlyNoGo','onlyNeutral','onlyNarrow','onlyWide','onlyIntermediate','onlyLick','onlyNoLick'};
@@ -80,7 +82,7 @@ for condIdx = 1:condNum
     condLabels{condIdx} = answer{:};
 end
 
-inputStr = fullfile(cohortDir,'Decoding-with-increasing-cellNum',sprintf('%s_%s',stageDescription{1},strjoin(condLabels,' & ')));
+inputStr = fullfile(cohortPath,'Decoding-with-increasing-cellNum',sprintf('%s_%s',stageDescription{1},strjoin(condLabels,' & ')));
 answer = inputdlg('Enter the name of the figure files, to be saved as.','Labeling',[1 150],{inputStr});
 figureFile = answer{:};
 
@@ -205,7 +207,7 @@ for ar = 1:numel(area_names)+1 % +1 for all areas
         else
             resultName = sprintf('Binned_data_results_%s_allSpikes_%s_%s_%s_%s_%isplits_bootstrap*',chCond,unitType{condIdx},plotTitle,trialType{condIdx},classifierName,splitNumber);
         end
-        decodingDir = fullfile(cohortDir,'Decoding-with-increasing-cellNum',stageDescription{condIdx},plotTitle,'*cells*');
+        decodingDir = fullfile(cohortPath,'Decoding-with-increasing-cellNum',stageDescription{condIdx},plotTitle,'*cells*');
         FileInfo = dir(decodingDir); % Get all the cell runs
         cellVals = cellfun(@(x) str2double(regexp(x, '\d+', 'match')), {FileInfo.name});
 

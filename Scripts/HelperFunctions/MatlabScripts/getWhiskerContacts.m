@@ -1,33 +1,14 @@
 function HispeedTrials = getWhiskerContacts(sessionDir)
 
-% TODO !!! Add: If screwplates are not visible, then average through drum points
-
-addpath 'Z:\Filippo\Scripts\MatlabScripts\general functions'
-addpath 'Z:\Filippo\Scripts\GitHub\NeuroNetzAnalysis'
-addpath 'Z:\Filippo\Scripts\GitHub\matlab-toml\toml'
-% configPath = "C:/Users/Groh/Whiskertracking-Filippo-2021-01-24/config.yaml";
-
 %% Grab the DLC (filtered) csv file with the bodyparts
 
 videoDir = fullfile(sessionDir,'videos');
 HispeedTrials = assignTrialsToVideos(videoDir);
 
-
-% pe = pyenv;
-% if logical(pe.Status) % If python environment is not loaded, then load
-%     pyenv('ExecutionMode','InProcess',...
-%         'Version','C:\Users\Groh\anaconda3\envs\DLC-GPU\pythonw.exe');
-% elseif ~strcmp(pe.Executable,"C:\Users\Groh\anaconda3\envs\DLC-GPU\pythonw.exe")
-%     pyenv('ExecutionMode','InProcess',...
-%         'Version','C:\Users\Groh\anaconda3\envs\DLC-GPU\pythonw.exe');
-% %     error('Python environment is not correct (DLC-GPU). You have to restart Matlab to load this environment.')
-% end
-
 pathToScript = fileparts("C:\Users\Groh\PycharmProjects\pythonProject\DLCforMatlab.py");
 if count(py.sys.path,pathToScript) == 0
     insert(py.sys.path,int32(0),pathToScript)
 end
-% py.importlib.import_module('DLCforMatlab');
 
 % Check for each video section whether it has already been analyzed and
 % filtered. If not, do it now.
@@ -38,35 +19,10 @@ for i = 1:2
         [~,videoName,~] = fileparts(HispeedTrials_temp.VideoPath{k});
         if any(startsWith(list,[videoName,'DLC']))
             if ~any(startsWith(list,[videoName,'DLC']) & endsWith(list,'filtered.csv'))
-                % If not filtered, filter the data and display in terminal
-%                 fprintf('The predictions of %s were not filtered yet. Filtering now...\n',videoName)
-                
-                % For now, break, because DLC.bat script doesn't work
                 error('The predictions of %s were not filtered yet. Filtering now...\n',videoName)
-                % Import data and transform to double vector
-                % system(sprintf(...
-                %     'C:\Users\Groh\anaconda3\envs\DLC-GPU\pythonw.exe Z:\\Filippo\\Scripts\\GitHub\\edlio\\read_tsync_file.py %s',path));
-                
-                
-                %                 py.DLCforMatlab.filterpredictions(configPath,...
-                %                     HispeedTrials_temp.VideoPath{k});
             end
         else
-            % For now, break, because DLC.bat script doesn't work
             error('You need to analyze the videos first, in order to get the whisker contact points.')
-            
-            
-%             % If not present, run the analysis of the overview camera
-%             answer = questdlg(sprintf('The %s of hispeed%d was not analyzed yet. Do you want to analyze now?',videoName,i), ...
-%                 'Analyze Video', ...
-%                 'Yes','No','Yes');
-%             if isequal(answer,'Yes')
-%                 disp('Analyzing video. This may take a while...')
-% 
-%                 Run deeplabcut and save the filtered predictions as csv
-%                 py.DLCforMatlab.analyze_videos(configPath,...
-%                     HispeedTrials_temp.VideoPath{k});
-%             end
         end
     end
 end
@@ -314,13 +270,4 @@ else
     save(fullfile(videoDir,'HispeedTrials.mat'),'HispeedTrials')
     
 end
-
-
-% Extract first contact
-
-% Extract last contact
-
-% Calculate whisker angle over time
-
-% Calculate whisker accelleration over time
 end

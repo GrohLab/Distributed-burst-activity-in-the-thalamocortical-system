@@ -2,32 +2,14 @@
 close all; clearvars; clc
 
 % Access correct individual
+scriptFullPath = matlab.desktop.editor.getActiveFilename();
+load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\userDataPath.mat'), 'cohortPath');
 try
-    load('Z:\Filippo\Animals\animalData.mat')
-    load('Z:\Filippo\Animals\Cohort12_33-38\allFiles.mat','FileInfo')
+    load(fullfile(cohortPath, 'animalData.mat'))
+    load(fullfile(cohortPath, 'allFiles.mat'),'FileInfo')
 catch
 end
 
-startPath = 'Z:\Filippo\Animals\Cohort12_33-38';
-
-% startPath = uigetdir(startPath,'Select an Animal');
-% if ~startPath
-%     fprintf(2,'\nNo start path was selected.\n\n')
-%     return
-% elseif exist(startPath,'dir')==0
-%     fprintf(2,'\nYour start path is non existing.')
-%     fprintf(2,'\nChoose a different one.\n\n')
-%     return
-% else
-%     [~,animalName,~] = fileparts(startPath);
-%     if isempty(regexp(animalName,'#\d','once')) || regexp(animalName,'#\d') ~= 1
-%         fprintf(2,'\nYour start path is not an animal directory.')
-%         fprintf(2,'\nChoose a different one.\n\n')
-%         return
-%     end
-% end
-% 
-% FileInfo = FileInfo(cellfun(@(x) contains(x, animalName), {FileInfo.folder}, 'UniformOutput', true),:);
 fileSelection = cellfun(@(x) fullfile(fileparts(x),'intan-signals\automatedCuration'), {FileInfo.folder}, 'UniformOutput', false)';
 answer = listdlg('ListString',fileSelection,...
     'PromptString','Choose sessions to plot.',...

@@ -5,10 +5,6 @@ function HispeedTrials = getWhiskerContactsApertures(sessionDir)
 % c) Calculate whisker angle over time
 % d) Calculate whisker acceleration over time
 
-addpath 'Z:\Filippo\Scripts\MatlabScripts\general functions'
-addpath 'Z:\Filippo\Scripts\GitHub\NeuroNetzAnalysis'
-addpath 'Z:\Filippo\Scripts\GitHub\matlab-toml\toml'
-
 configPath = 'C:\Users\Groh\DLC-Modules\Whiskertrack_Apertures-Heimburg-2021-11-11\config.yaml';
 
 %% Grab the DLC (filtered) csv file with the bodyparts
@@ -49,17 +45,6 @@ for i = 1:2
             % If not all videos are analzyed quit the script
             fprintf('\nThe video %s was not analyzed yet. Please analyze all videos, before you continue with this script.\n',videoName)
             return
-
-            %             If not present, run the analysis of the overview camera
-            %             answer = questdlg(sprintf('The %s of hispeed%d was not analyzed yet. Do you want to analyze now?',videoName,i), ...
-            %                 'Analyze Video', ...
-            %                 'Yes','No','Yes');
-            %             if isequal(answer,'Yes')
-            %                 disp('Analyzing video. This may take a while...')
-            %                 Run deeplabcut and save the filtered predictions as csv
-            %                 py.DLCforMatlab.analyze_videos(configPath,...
-            %                     HispeedTrials_temp.VideoPath{k});
-            %             end
         end
     end
 end

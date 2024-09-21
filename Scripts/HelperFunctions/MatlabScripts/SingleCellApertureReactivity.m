@@ -12,13 +12,14 @@ clc
 % This is a quick solution for providing only the automatedCuration
 % directories. For more general usage, create an "analyzed_files.mat" file
 % for the StimulusResponse_Analysis script.
-startPath = 'Z:\Filippo\Animals\Cohort12_33-38';
-load(fullfile(startPath,'allFiles.mat'),'FileInfo')
+scriptFullPath = matlab.desktop.editor.getActiveFilename();
+load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\userDataPath.mat'), 'cohortPath');
+load(fullfile(cohortPath,'allFiles.mat'),'FileInfo')
 AllFiles = fullfile(fileparts({FileInfo.folder}), 'intan-signals\automatedCuration')';
 
 % Access correct individual
 try
-    load('Z:\Filippo\Animals\animalData.mat')
+    load(fullfile(cohortPath, 'animalData.mat'))
 catch
     fprintf('\nNo animalData.mat file loaded.\n')
 end
@@ -142,10 +143,6 @@ else
         fileSelection = fullfile(fileparts(fileparts(all_sesNames)),'intan-signals\automatedCuration');
     end
 end
-
-% Exclude this file, since it is corrupted
-fileSelection = fileSelection(~contains(fileSelection, 'Z:\Filippo\Animals\Cohort12_33-38\#35\2021-11-11\P3.2_50pctReward_session12\intan-signals\automatedCuration'));
-fileSelection = fileSelection(~contains(fileSelection, 'Z:\Filippo\Animals\Cohort12_33-38\#37\2021-12-01\P3.5_ruleswitch_lidocaine_session02\intan-signals\automatedCuration'));
 
 if exist('stageNum','var')
     if contains(prompt{performancePick},'two')
@@ -428,7 +425,7 @@ lgd.Position = [0.1 0.465 0.1 0.1];
 %% Save figure
 
 % Destination folder for matlab .fig files
-destfold = fullfile('Z:\Filippo\Animals\Cohort12_33-38','Analysis-Figures','SingleCellReactivity-Analysis');
+destfold = fullfile(cohortPath, 'Analysis-Figures','SingleCellReactivity-Analysis');
 if exist(destfold,"dir") == 0
     mkdir(destfold)
 end

@@ -18,10 +18,6 @@ if count(py.sys.path,pathToReadFile) == 0
 end
 py.importlib.import_module('read_tsync_file');
 
-% Import data and transform to double vector
-% timestamps = system(sprintf(...
-%     'python Z:\\Filippo\\Scripts\\GitHub\\edlio\\read_tsync_file.py %s',path));
-
 if contains(filePath,'tis-camera')
     pathSession = fileparts(fileparts(fileparts(filePath)));
     ts = py.read_tsync_file.get_timestamps_overview(pathSession);

@@ -10,11 +10,12 @@
 
 close all; clearvars; clc
 
-cohortPath = 'Z:\Filippo\Animals\Cohort12_33-38';
 % Choose sessions to merge together
+scriptFullPath = matlab.desktop.editor.getActiveFilename();
+load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\userDataPath.mat'), 'cohortPath');
 try
-    load('Z:\Filippo\Animals\animalData.mat')
-    load(fullfile(cohortPath,'allFiles.mat'),'FileInfo')
+    load(fullfile(cohortPath, 'animalData.mat'))
+    load(fullfile(cohortPath, 'allFiles.mat'),'FileInfo')
 catch
 end
 
@@ -72,10 +73,6 @@ else
         fileSelection = fullfile(fileparts(fileparts(all_sesNames)),'intan-signals\automatedCuration');
     end
 end
-
-% Exclude this file, since it is corrupted
-fileSelection = fileSelection(~contains(fileSelection, 'Z:\Filippo\Animals\Cohort12_33-38\#35\2021-11-11\P3.2_50pctReward_session12\intan-signals\automatedCuration'));
-fileSelection = fileSelection(~contains(fileSelection, 'Z:\Filippo\Animals\Cohort12_33-38\#37\2021-12-01\P3.5_ruleswitch_lidocaine_session02\intan-signals\automatedCuration'));
 
 if exist('stageNum','var')
     if contains(prompt{performancePick},'two')
@@ -160,7 +157,7 @@ if ismember(cellSpecs,(2:5))
     burstResponses = cell(1,numel(trialType));
     tonicResponses = cell(1,numel(trialType));
     for i = 1:numel(trialType)
-        startPath = 'Z:\Filippo\Animals\Cohort12_33-38\Analysis-Figures\Burstiness-Analysis';
+        startPath = fullfile(cohortPath, 'Analysis-Figures\Burstiness-Analysis');
         RespPatFile = fullfile(startPath,sessionDescription{:}, ...
             sprintf('ResponsePattern_%s_%s_withTargetEstimate_respond%.3f-%.3f_baseline%.3f-%.3f.mat',condition,trialType{i},respWindow,spontWindow));
         if ~exist(RespPatFile,'file')

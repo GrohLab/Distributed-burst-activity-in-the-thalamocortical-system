@@ -1,6 +1,4 @@
 function HispeedTrials = assignTrialsToVideos(videoDir)
-addpath 'Z:\Filippo\Scripts\MatlabScripts\general functions'
-
 % Check if the correct directory was chosen
 % The user has to pick the overall 'videos' folder, not a hispeed folder
 
