@@ -241,65 +241,6 @@ for anim = 1:numel(indiAnimals)
     end
 end
 
-%% Plot the burst bias of all animals, without normalizing 
-
-for ar = 1:numel(area_names)+1
-    if ar==numel(area_names)+1 % All areas
-        plotColor = 'k';
-        plotTitle = 'allAreas';
-    else
-        plotColor = area_colors{ar};
-        plotTitle = area_names_waveforms{ar};
-    end
-    figure('Name',sprintf('BurstBiasByTrials_%s',plotTitle))
-    hold on
-    
-    BurstBiasByTrials = cell(1,numel(indiAnimals));
-    for anim = 1:numel(indiAnimals)
-    % Get the trial numbers for each session
-    animIdx = find(contains({animalData.cohort(12).animal.animalName},num2str(indiAnimals(anim))));
-    indiTrialNum = animalData.cohort(12).animal(animIdx).trial_num(animalData.cohort(12).animal(animIdx).stage_sessionCount==unique(stageNum));
-    if ar==numel(area_names)+1 % All areas
-    BurstBiasByTrials{anim} = repelem(BurstBiasProgression_allAreas{anim}, indiTrialNum);
-    else
-    BurstBiasByTrials{anim} = repelem(BurstBiasProgression{ar}{anim}, indiTrialNum);
-    end
-    p = plot(BurstBiasByTrials{anim},'Color',plotColor,'LineWidth',1);
-    p.Color(4) = 0.5;
-    end
-
-    % Concatenate all arrays
-    maxLength = max(cellfun(@length, BurstBiasByTrials));
-    concatByTrials = cellfun(@(x) [x, NaN(1, maxLength - length(x))], BurstBiasByTrials, 'UniformOutput', false);
-    concatByTrials = cell2mat(concatByTrials');
-    plot(mean(concatByTrials,1,'omitnan'), 'Color',plotColor,'LineWidth',2);
-    title(sprintf('Change of burst bias with trials - %s',plotTitle))
-
-    xlabel('Trials')
-    ylabel(sprintf('%s \\leftarrow Burst bias \\rightarrow %s',trialTypeLabels{:}))
-    hold off
-
-    figure
-    hold on
-    corCoef = NaN(2,length(concatByTrials));
-    animIdx = contains({animalData.cohort(12).animal.animalName},cellstr(num2str(indiAnimals)));
-    learnSpeed = [animalData.cohort(12).animal(animIdx).intersec_initial];
-    for i = 1:length(concatByTrials)
-        [cc,pp] = corrcoef(concatByTrials(:,i), learnSpeed,'Rows','complete');
-        corCoef(1,i) = cc(1,2);
-        corCoef(2,i) = pp(1,2);
-    end
-    plot(corCoef(1,:))
-    ylabel('CorrCoef')
-    
-    yyaxis right
-    semilogy(corCoef(2,:))
-    ylabel('p-val')
-
-    title(sprintf('CorrCoef with trials and learning speed - %s',plotTitle))
-    xlabel('Trials')
-end
-
 %% Plot the burst bias of all animals, normalizing the session count
 
 for ar = 1:numel(area_names)+1
@@ -417,66 +358,6 @@ for ar = 1:numel(area_names)+1
     title(sprintf('Change of burst bias with learning - %s',plotTitle))
     hold off
 end
-
-%% Plot the burst responding cells of all animals, without normalizing 
-
-respondersByTrials = cell(1,numel(indiAnimals));
-for ar = 1:numel(area_names)+1
-    if ar==numel(area_names)+1 % All areas
-        plotColor = 'k';
-        plotTitle = 'allAreas';
-    else
-        plotColor = area_colors{ar};
-        plotTitle = area_names_waveforms{ar};
-    end
-    figure('Name',sprintf('BurstResponderFractionByBtrials_%s',plotTitle))
-    hold on
-    
-    for anim = 1:numel(indiAnimals)
-    % Get the trial numbers for each session
-    animIdx = find(contains({animalData.cohort(12).animal.animalName},num2str(indiAnimals(anim))));
-    indiTrialNum = animalData.cohort(12).animal(animIdx).trial_num(animalData.cohort(12).animal(animIdx).stage_sessionCount==unique(stageNum));
-    if ar==numel(area_names)+1 % All areas
-        respondersByTrials{anim} = repelem(burstCellProgression_allAreas{anim}, indiTrialNum);
-    else
-        respondersByTrials{anim} = repelem(burstCellProgression{ar}{anim}, indiTrialNum);
-    end
-    p = plot(respondersByTrials{anim},'Color',plotColor,'LineWidth',1);
-    p.Color(4) = 0.5;
-    end
-
-    % Concatenate all arrays
-    maxLength = max(cellfun(@length, respondersByTrials));
-    concatByTrials = cellfun(@(x) [x, NaN(1, maxLength - length(x))], respondersByTrials, 'UniformOutput', false);
-    concatByTrials = cell2mat(concatByTrials');
-    plot(mean(concatByTrials,1,'omitnan'), 'Color',plotColor,'LineWidth',2);
-
-    title(sprintf('Change of burst responders with trials - %s',plotTitle))
-    xlabel('Trials')
-    ylabel('Fraction')
-    hold off
-
-    figure
-    hold on
-    corCoef = NaN(2,length(concatByTrials));
-    animIdx = contains({animalData.cohort(12).animal.animalName},cellstr(num2str(indiAnimals)));
-    learnSpeed = [animalData.cohort(12).animal(animIdx).intersec_initial];
-    for i = 1:length(concatByTrials)
-        [cc,pp] = corrcoef(concatByTrials(:,i), learnSpeed,'Rows','complete');
-        corCoef(1,i) = cc(1,2);
-        corCoef(2,i) = pp(1,2);
-    end
-    plot(corCoef(1,:))
-    ylabel('CorrCoef')
-    
-    yyaxis right
-    semilogy(corCoef(2,:))
-    ylabel('p-val')
-
-    title(sprintf('CorrCoef with trials and learning speed - %s',plotTitle))
-    xlabel('Trials')
-end
-
 
 %% Plot the burst responding cells of all animals, normalizing the session count
 

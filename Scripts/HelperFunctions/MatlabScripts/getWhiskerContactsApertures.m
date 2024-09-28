@@ -1,10 +1,4 @@
 function HispeedTrials = getWhiskerContactsApertures(sessionDir)
-% Potential extensions of the script:
-% a) Extract first contact
-% b) Extract last contact
-% c) Calculate whisker angle over time
-% d) Calculate whisker acceleration over time
-
 configPath = 'C:\Users\Groh\DLC-Modules\Whiskertrack_Apertures-Heimburg-2021-11-11\config.yaml';
 
 %% Grab the DLC (filtered) csv file with the bodyparts
@@ -155,12 +149,7 @@ for i = 1:2
         % The distance between the left and the right lickport edge is 30mm
 
         conversion_fac = 30/(sqrt((median_table.lp_edge_left(1)-median_table.lp_edge_right(1))^2+(median_table.lp_edge_left(2)-median_table.lp_edge_right(2))^2));
-
-        %             metric_table_stat = stationary_table;
         metric_table = raw_table;
-
-        %             metric_table_stat{:,1:3:end} = conversion_fac*stationary_table{:,1:3:end}; % X-coordinates
-        %             metric_table_stat{:,2:3:end} = conversion_fac*stationary_table{:,2:3:end}; % Y-coordinates
 
         metric_table{:,1:3:end} = conversion_fac*raw_table{:,1:3:end}; % X-coordinates
         metric_table{:,2:3:end} = conversion_fac*raw_table{:,2:3:end}; % Y-coordinates
@@ -170,9 +159,7 @@ for i = 1:2
 
 
         % Define boundaries of wings
-
-        % NaN values have to be excluded, otherwise the polyfit will
-        % only return NaNs
+        % NaN values have to be excluded, otherwise the polyfit will only return NaNs
         xvals = [median_table.wing_left_base_2(1),median_table.wing_left_base_1(1),median_table.wing_left_corner(1)];
         xvals = xvals(~isnan(xvals));
         yvals = [median_table.wing_left_base_2(2),median_table.wing_left_base_1(2),median_table.wing_left_corner(2)];
@@ -299,7 +286,7 @@ for i = 1:2
                         p_poly_dist(metric_table.whisker2_right7(whisker_right_safe(m)), metric_table.whisker2_right7_1(whisker_right_safe(m)),wing_left(1,:),wing_left(2,:)) < tolerance || ...
                         p_poly_dist(metric_table.whisker1_right6(whisker_right_safe(m)), metric_table.whisker1_right6_1(whisker_right_safe(m)),wing_left(1,:),wing_left(2,:)) < tolerance || ...
                         p_poly_dist(metric_table.whisker2_right6(whisker_right_safe(m)), metric_table.whisker2_right6_1(whisker_right_safe(m)),wing_left(1,:),wing_left(2,:)) < tolerance
-                    %                     dist_right = p_poly_dist(metric_table.nosetip(whisker_right_safe(m)), metric_table.nosetip_1(whisker_right_safe(m)),wing_right(1,:),wing_right(2,:));
+                    
                     touch_event = whisker_right_safe(m); % This is in frames
                     touch_event = HispeedTrials_temp.Timestamps{k}(touch_event); % This converts it to a timestamp in msec
                     right_touch_msec(m) = touch_event;

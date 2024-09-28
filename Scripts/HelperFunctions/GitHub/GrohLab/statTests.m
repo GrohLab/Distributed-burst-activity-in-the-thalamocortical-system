@@ -132,11 +132,14 @@ Out2 = Out1;
 for ccl = 1:Ncl
    [Out1(ccl), Out2(ccl)] = statFun(obs1(ccl,:), obs2(ccl,:));
 end
-if sum(round(Out1) - Out1)
+if isequal(func2str(statFun),'signrank')
     H = logical(Out2);
     P = Out1;
-else
+elseif isequal(func2str(statFun),'kstest2')
     H = logical(Out1);
     P = Out2;
+else
+    error('statTests:noOutputforFunction',...
+        'No defined output for function handle: %s.',func2str(statFun))
 end
 end

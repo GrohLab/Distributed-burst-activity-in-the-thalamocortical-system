@@ -10,10 +10,7 @@ function clusterInfo = getClusterInfo(filename)
 %               - clusterInfo - an NxM table with N rows corresponding to
 %               each cluster and M columns corresponding to each variable
 %               in the file (e.g. id, amplitude, channel, etc.)
-% Emilio Isaias-Camacho @ GrohLab 2020
-%% Initial and auxiliary variables
-getContFirstCell = @(x) x{1};
-clusterInfo = table;
+% Filippo Heimburg @ GrohLab 2020 (adapted from Emilio Isaias-Camacho 2020)
 
 %% Validation of the input argument; the filename
 % Checking for existence
@@ -31,40 +28,32 @@ if ~strcmp(fext,'.tsv')
     return
 end
 %% Reading the file
-% Open the file for reading
-fID = fopen(filename,'r');
-% Read the header for each column
-heads = getContFirstCell(textscan(fgetl(fID), '%s\t'));
-Nv = length(heads);
-% Read all the values in the file
-conts = getContFirstCell(textscan(fID, '%s', 'Delimiter', '\t',...
-    'Whitespace', ' '));
-emptyIdx = cellfun(@isempty, conts); conts(emptyIdx) = {'0'};
-% Close the file and process the contents
-fclose(fID);
-%% Scanning the extracted contents 
-Ne = length(conts);
-conts_rs = reshape(conts,Nv,Ne/Nv)';
-for cv = 1:Nv
-    % Proceeding slightly different for each variable
-    switch heads{cv}
-        case {'cluster_id','id','KSLabel','group','NeuronType','Region'}
-            % Read as string if the header indicates strings
-            vals = cellfun(@(x) getContFirstCell(textscan(x,'%s')),...
-                conts_rs(:,cv));
-        case 'firing_rate'
-            % Read specially as the values are accompanied by the units
-            vals = cell2mat(cellfun(@(x) textscan(x,'%f spk/s'),...
-                conts_rs(:,cv)));
-        otherwise
-            % Read simply as a number for the rest of the variables
-            vals = cell2mat(cellfun(@(x) textscan(x,'%f'),...
-                conts_rs(:,cv)));
-    end
-    % Assigning the values to the corresponding variable for all custers
-    clusterInfo.(heads{cv}) = vals;
-end
-% Naming the rows and columns appropiately and respectively.
+
+[data, header, raw] = tsvread(filename);
+data = data(:,~cellfun(@isempty, header));
+raw = raw(:,~cellfun(@isempty, header));
+header = header(~cellfun(@isempty, header));
+
+strIdx = all(isnan(data)) | ismember(header,{'cluster_id','id'});
+
+varTypes = repmat({'double'},1,numel(header));
+varTypes(strIdx) = {'char'};
+
+% Suppress character warning, since they need to be char arrays
+warning('off','MATLAB:table:PreallocateCharWarning')
+clusterInfo = table('Size',[size(data,1)-1 size(data,2)],'VariableTypes',varTypes,'VariableNames',header);
+warning('on','MATLAB:table:PreallocateCharWarning')
+
+clusterInfo(:,strIdx) = raw(2:end,strIdx);
+clusterInfo{:,~strIdx} = data(2:end,~strIdx);
+
+% Rename the cluster_id variable for historic reasons
 clusterInfo.Properties.DimensionNames = {'Clusters', 'Measures'};
-clusterInfo.Properties.RowNames = clusterInfo.(heads{1});
+try
+    clusterInfo.Properties.RowNames = clusterInfo.id;
+catch
+    clusterInfo = renamevars(clusterInfo,"cluster_id","id");
+    clusterInfo.Properties.RowNames = clusterInfo.id;
+end
+
 end

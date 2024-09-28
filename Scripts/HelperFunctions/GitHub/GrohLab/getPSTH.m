@@ -36,21 +36,24 @@ end
 [Ne, Nt, Na] = size(discreteStack);
 % Getting the raw PSTHs and kicking out the undesired trials
 auxCounts = sum(discreteStack(:,:,~kIdx),3);
-PSTH = zeros(Ne-1,ceil(diff(timeLapse)/binSz));
+PSTH = zeros(Ne-1,round(diff(timeLapse)/binSz));
 % trig = zeros(1,ceil(Nt/binEls));
 sweeps = Na - sum(kIdx);
 trig = auxCounts(1,:)/sum(~kIdx);
 % Binned time axis
 timeAxis = (0:size(PSTH,2)-1)*binSz + timeLapse(1);
 txfs = (0:Nt-1)/fs + timeLapse(1);
+f = figure('Visible','off');
 for ce = 2:Ne
     tmVals = arrayfun(@(x,y) repmat(x,y,1), txfs, auxCounts(ce,:),...
-        'UniformOutput',0); tmVals = cat(1,tmVals{:});
-    h = histcounts(tmVals,'BinWidth',binSz,'BinLimits',timeLapse);
+        'UniformOutput',0);
+    tmVals = cat(1,tmVals{:});
+    h = histogram(tmVals,'BinWidth',binSz,'BinLimits',timeLapse);
     try
-        PSTH(ce-1,:) = h;
+        PSTH(ce-1,:) = h.Values;
     catch
-        PSTH(ce-1,1:numel(h)) = h;
+        PSTH(ce-1,1:numel(h.Values)) = h.Values;
     end
 end
+close(f)
 end

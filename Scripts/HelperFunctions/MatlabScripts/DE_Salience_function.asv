@@ -118,17 +118,17 @@ if ~exist(figureDir,'dir')
 end
 
 tempDir = dataDir;
-rhdFile = dir(fullfile(tempDir,'*analysis.mat'));
+rhdFile = dir(fullfile(tempDir,'*.rhd'));
 iter = 1;
 while isempty(rhdFile) && iter <=3
     tempDir = fileparts(tempDir);
-    rhdFile = dir(fullfile(tempDir,'*analysis.mat'));
+    rhdFile = dir(fullfile(tempDir,'*.rhd'));
     iter = iter + 1;
     if isempty(rhdFile) && iter > 3
         error('No rhd file found.')
     end
 end
-expName = strrep(rhdFile(1).name,'analysis.mat','');
+[~,expName,~] = fileparts(rhdFile(1).name);
 intanDir = rhdFile(1).folder;
 
 % Get the Triggers

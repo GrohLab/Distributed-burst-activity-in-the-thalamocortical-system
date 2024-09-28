@@ -488,14 +488,5 @@ end
 savefig(fullfile(raster_data_dir,sprintf('plot_%s_%s_%s_%s_%s_%s_%s_%dsplits',condition,classifier_labels,spikeType,unitType,area_name,trialType,classifierName,numSplits)))
 
 end
-%%  Plot the TCT matrix
-
-% figure
-% plot_obj = plot_standard_results_TCT_object(save_file_name);
-% plot_obj.display_TCT_movie = 0;
-% plot_obj.significant_event_times = 0; % the time when the stimulus was shown
-% plot_obj.TCT_figure_number = gcf().Number;
-% plot_obj.movie_figure_number = gcf().Number + 1;
-% plot_obj.plot_results; % plot the TCT matrix
 
 end

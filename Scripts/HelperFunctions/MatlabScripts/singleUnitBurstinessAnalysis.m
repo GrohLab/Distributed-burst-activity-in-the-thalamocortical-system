@@ -5,10 +5,14 @@
 % of bursts in the response window, and saves that information in the
 % "ClusterBurstiness*.mat" file.
 
-% Variables to set: fileSelection, condition, two trial types, spontWindow,
-% respWindow, timeLapse
+% Variables to set: spontWindow, respWindow, timeLapse
 
 close all; clearvars; clc
+
+% Choose time windows to compare
+spontWindow = [-600,-400]; % spontaneous window in msec (default: [-600,-400])
+respWindow = [0,200]; % response window in msec (default: [0,200])
+timeLapse = [-800,800]; % total time window in msec
 
 % Choose sessions to merge together
 scriptFullPath = matlab.desktop.editor.getActiveFilename();
@@ -93,10 +97,6 @@ end
 
 area_names = {'BC','VPM','POm','ZIv'};
 area_colors = {'#377eb8','#4daf4a','#984ea3','#ff7f00'};
-% Choose time windows to compare
-spontWindow = [-600,-400]; % spontaneous window in msec (default: [-600,-400])
-respWindow = [0,200]; % response window in msec (default: [0,200])
-timeLapse = [-800,800]; % total time window in msec
 
 % Choose condition to analyze
 prompt = {'Reward', 'Punishment', 'Lick', 'onlyFirstLick',...
@@ -373,11 +373,11 @@ for file = 1:height(fileSelection)
         end
 
         tempDir = currFile;
-        rhdFile = dir(fullfile(tempDir,'*.rhd'));
+        rhdFile = dir(fullfile(tempDir,'*analysis.mat'));
         iter = 1;
         while isempty(rhdFile) && iter <=3
             tempDir = fileparts(tempDir);
-            rhdFile = dir(fullfile(tempDir,'*.rhd'));
+            rhdFile = dir(fullfile(tempDir,'*analysis.mat'));
             iter = iter + 1;
             if isempty(rhdFile) && iter > 3
                 error('No rhd file found.')
@@ -789,10 +789,7 @@ for file = 1:height(fileSelection)
                     plot([xt(1)+0.2,xt(2)-0.2], [0.8 0.8]*max(yt), '-k'),  text(mean(xt([1 2])), max(yt)*0.9, 'n.s.','HorizontalAlignment','center')
                 end
             end
-            % if p > 0.05  % To plot only tonic responding
-            %     close(fig)
-            % end
-            % close all % close figure, in order to save space
+            close all % close figure, in order to save space
         end
         
         if cellSpecs==1 % only save when all cells are analyzed
@@ -957,7 +954,7 @@ figTrialComp_indi = figure('Name','BurstRateComp_allAreas_individualPoints');
 % Significance tests will be performed on time windows rather than
 % individual data points
 windowLength = 50; % in msec
-localBonferroni = 50; % local correction for multiple testing, set to 'off' to correct over the whole time lapse
+localBonferroni = 100; % local correction for multiple testing, set to 'off' to correct over the whole time lapse
 windowBins = diff(timeLapse)/windowLength;
 if isnumeric(localBonferroni)
     bonferroniString = sprintf('local bonferroni %imsec, i.e., %.1f bins',localBonferroni,localBonferroni/windowLength);
@@ -1035,14 +1032,12 @@ for ar = 1:numel(area_names)
 
         burst_area = burstActivityAll{i}(idx,:);
         burst_area = zscore(burst_area,0,2);
-        %         burst_area = (burst_area-min(burst_area,[],2))./(max(burst_area,[],2)-min(burst_area,[],2));
 
         imagesc(burst_area);
         title(trialType{i})
         xticklabels([])
         ylabel('Units')
         set(gca, 'YTick', 1:height(burst_area), 'YTickLabel', UnitIDs_allFiles(idx))
-        % colormap("gray")
         colormap(magma)
 
         nexttile(i+4)
@@ -1123,7 +1118,6 @@ for ar = 1:numel(area_names)
             idx = ismember(UnitAreas_allFiles,area_names{ar});
         end
 
-        % fr_all_area_norm = zscore(fr_all_area{i},0,2);
         fr_all_area_norm = (fr_all_area{i}-min(fr_all_area{i},[],2))./(max(fr_all_area{i},[],2)-min(fr_all_area{i},[],2));
         
         % Sort the responses in descending order regarding their reponse magnitude
@@ -1341,9 +1335,6 @@ for ar = 1:numel(area_names)
         figTrialComp_indi.UserData = struct('statTest', 'ttest2',...
             'Vartype','unequal, i.e. Welsch t-test',...
             'alphaCorrection','bonferroni');
-%         [p_indi, H_indi] = arrayfun(@(x) signrank(fr_burst_area{1}(:,x), fr_burst_area{2}(:,x),'Alpha',0.05/width(fr_burst_area{1})), 1:width(fr_burst_area{1}));
-        % False discovery rate correction after Hochberg
-%         [p_indi, H_indi] = mafdr(p_indi);
 
         % Convert subsequent significant data points into continuous bars
         barBegins = strfind(H_indi, [0 1]);
@@ -1381,8 +1372,6 @@ for ar = 1:numel(area_names)
         for wind = 1:windowBins
             fact = width(fr_burst_area{1})/windowBins;
             startPoint = 1+(wind-1)*fact;
-%             [h_temp, p_temp] = ttest(mean(fr_burst_area{1}(:,startPoint:startPoint+fact-1),'omitnan'),...
-%                 mean(fr_burst_area{2}(:,startPoint:startPoint+fact-1),'omitnan'),'Alpha',0.05/windowBins);
             % Account for difference in variability
             [h_temp, p_temp] = ttest2(mean(fr_burst_area{1}(:,startPoint:startPoint+fact-1),2,'omitnan'),...
                 mean(fr_burst_area{2}(:,startPoint:startPoint+fact-1),2,'omitnan'),'Alpha',0.05/(localBonferroni/windowLength),'Vartype','unequal');
@@ -1425,8 +1414,6 @@ for ar = 1:numel(area_names)
         for wind = 1:windowBins
             fact = width(fr_tonic_area{1})/windowBins;
             startPoint = 1+(wind-1)*fact;
-%             [h_temp, p_temp] = ttest(mean(fr_tonic_area{1}(:,startPoint:startPoint+fact-1),'omitnan'),...
-%                 mean(fr_tonic_area{2}(:,startPoint:startPoint+fact-1),'omitnan'),'Alpha',0.05/windowBins);
             % Account for difference in variability
             [h_temp, p_temp] = ttest2(mean(fr_tonic_area{1}(:,startPoint:startPoint+fact-1),2,'omitnan'),...
                 mean(fr_tonic_area{2}(:,startPoint:startPoint+fact-1),2,'omitnan'),'Alpha',0.05/(localBonferroni/windowLength),'Vartype','unequal');
@@ -1469,8 +1456,6 @@ for ar = 1:numel(area_names)
         for wind = 1:windowBins
             fact = width(fr_all_area{1})/windowBins;
             startPoint = 1+(wind-1)*fact;
-%             [h_temp, p_temp] = ttest(mean(fr_all_area{1}(:,startPoint:startPoint+fact-1),'omitnan'),...
-%                 mean(fr_all_area{2}(:,startPoint:startPoint+fact-1),'omitnan'),'Alpha',0.05/windowBins);
             % Account for difference in variability
             [h_temp, p_temp] = ttest2(mean(fr_all_area{1}(:,startPoint:startPoint+fact-1),2,'omitnan'),...
                 mean(fr_all_area{2}(:,startPoint:startPoint+fact-1),2,'omitnan'),'Alpha',0.05/(localBonferroni/windowLength),'Vartype','unequal');

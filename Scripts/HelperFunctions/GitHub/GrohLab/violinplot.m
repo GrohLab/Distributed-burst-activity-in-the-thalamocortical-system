@@ -1,289 +1,207 @@
-%% Firing Rates Violin Plots - Separate Plots per Group
+function violins = violinplot(data, cats, varargin)
+%Violinplots plots violin plots of some data and categories
+%   VIOLINPLOT(DATA) plots a violin of a double vector DATA
+%
+%   VIOLINPLOT(DATAMATRIX) plots violins for each column in
+%   DATAMATRIX.
+%
+%   VIOLINPLOT(DATAMATRIX, CATEGORYNAMES) plots violins for each
+%   column in DATAMATRIX and labels them according to the names in the
+%   cell-of-strings CATEGORYNAMES.
+%
+%   In the cases above DATA and DATAMATRIX can be a vector or a matrix,
+%   respectively, either as is or wrapped in a cell.
+%   To produce violins which have one distribution on one half and another
+%   one on the other half, DATA and DATAMATRIX have to be cell arrays
+%   with two elements, each containing a vector or a matrix. The number of
+%   columns of the two data sets has to be the same.
+%
+%   VIOLINPLOT(DATA, CATEGORIES) where double vector DATA and vector
+%   CATEGORIES are of equal length; plots violins for each category in
+%   DATA.
+%
+%   VIOLINPLOT(TABLE), VIOLINPLOT(STRUCT), VIOLINPLOT(DATASET)
+%   plots violins for each column in TABLE, each field in STRUCT, and
+%   each variable in DATASET. The violins are labeled according to
+%   the table/dataset variable name or the struct field name.
+%
+%   violins = VIOLINPLOT(...) returns an object array of
+%   <a href="matlab:help('Violin')">Violin</a> objects.
+%
+%   VIOLINPLOT(..., 'PARAM1', val1, 'PARAM2', val2, ...)
+%   specifies optional name/value pairs for all violins:
+%     'Width'        Width of the violin in axis space.
+%                    Defaults to 0.3
+%     'Bandwidth'    Bandwidth of the kernel density estimate.
+%                    Should be between 10% and 40% of the data range.
+%     'ViolinColor'  Fill color of the violin area and data points. Accepts
+%                    1x3 color vector or nx3 color vector where n = num
+%                    groups. In case of two data sets being compared it can 
+%                    be an array of up to two cells containing nx3
+%                    matrices.
+%                    Defaults to the next default color cycle.
+%     'ViolinAlpha'  Transparency of the violin area and data points.
+%                    Can be either a single scalar value or an array of
+%                    up to two cells containing scalar values.
+%                    Indicate FaceAlpha of the violin plot as the first
+%                    value within the cell and the MarkerAlpha as the
+%                    second value, e.g., {[0.3,0.7],[0.4,0.8]}.
+%                    Defaults to {[0.3,1]}.
+%     'EdgeColor'    Color of the violin area outline.
+%                    Defaults to [0.5 0.5 0.5]
+%     'BoxColor'     Color of the box, whiskers, and the outlines of
+%                    the median point and the notch indicators.
+%                    Defaults to [0.5 0.5 0.5]
+%     'MedianColor'  Fill color of the median and notch indicators.
+%                    Defaults to [1 1 1]
+%     'ShowData'     Whether to show data points.
+%                    Defaults to true
+%     'ShowNotches'  Whether to show notch indicators.
+%                    Defaults to false
+%     'ShowMean'     Whether to show mean indicator
+%                    Defaults to false
+%     'ShowBox'      Whether to show the box.
+%                    Defaults to true
+%     'ShowMedian'   Whether to show the median indicator.
+%                    Defaults to true
+%     'ShowWhiskers' Whether to show the whiskers
+%                    Defaults to true
+%     'GroupOrder'   Cell of category names in order to be plotted.
+%                    Defaults to alphabetical ordering
 
-mechResponse = clInfo.Mech_Control_15mW_R;
-ruNames =   {'VPL'}; % [{'Group 1'}, {'Group 2'}, {'L6'}];
+% Copyright (c) 2016, Bastian Bechtold
+% This code is released under the terms of the BSD 3-clause license
 
+hascategories = exist('cats','var') && not(isempty(cats));
 
-red = [0.75, 0, 0];
-green = [0, 0.75, 0];
-blue = [0.25, 0.5, 1];
-purple = [0.5,0,0.5];
-% colours = [green; red; blue];
-colours = [0,0,0];
-
-%  idxLaterTbl = ismember(clInfo.id, Later);
-%  idxLatestTbl = ismember(clInfo.id, Latest);
-%  idxL6Tbl = ismember(clInfo.id, L6);
-%  idxMat = [idxLaterTbl, idxLatestTbl, idxL6Tbl]  & mechResponse;
-idxMat = mechResponse; % & clInfo.Mech_Laser_1Hz_15mW_Rate_Evoked < 60;
-matDims = size(idxMat);
-nGroups = matDims(2);
-
-% yMax = [max(clInfo.Laser_5sec_pulse_15mW_Block_Rate_Spont), max(clInfo.Laser_5sec_pulse_15mW_Block_Rate_Evoked)];
-yMax = round(max(yMax)+5, -1);
-yMin = 0;
-
-for unitGroup = 1:nGroups
-    
-    
-    unitIds = idxMat(:,unitGroup)==true;
-    nUnits = sum(unitIds);
-    rts = NaN(nUnits, 2);
-    rts(:,1) = clInfo.Mech_Control_15mW_Rate_Evoked(unitIds);
-    rts(:,2) = clInfo.Mech_Laser_1Hz_15mW_Rate_Evoked(unitIds);
-    [p, sig] = ranksum(rts(:,1), rts(:,2));
-    fprintf([ruNames{unitGroup}, ' p value: ', num2str(p), '\n']);
-    figure('Color', 'White', 'Name', [ruNames{unitGroup}, '_Evoked_Rates_ViolinPlot']);
-    hold on
-    
-    
-    [yCtr, xCtr] = ksdensity(rts(:,1),'Bandwidth',0.7);
-    patch(yCtr * -1,xCtr,colours(unitGroup,:),'EdgeAlpha',0.1,'FaceAlpha',0.2);
-    
-    [yCtr, xCtr] = ksdensity(rts(:,2),'Bandwidth',0.7);
-    patch(yCtr,xCtr,colours(unitGroup,:),'EdgeAlpha',0.1,'FaceAlpha',0.5);
-    
-    
-    
-%     plot(zeros(nUnits,1) - 0.0025, rts(:,1),...
-%         'LineStyle','none', 'Marker', '*', 'Color', colour(unitGroup,:), 'MarkerSize', 2);
-%     
-%     plot(zeros(nUnits,1) + 0.0025, rts(:,2),...
-%         'LineStyle','none', 'Marker', '*', 'Color', [0,0,1], 'MarkerSize', 2);
-    
-    medControl = median(rts(:,1));
-    medLaser = median(rts(:,2));
-       
-    
-%     leg = legend('Mech Control','Mech Laser', 'Location','northwest');
-%     leg.Box = 'off';
-%     leg.Location = 'northeast';
-    
-    
-    
-    ax = gca;
-    ax.Title.String = ruNames{unitGroup};
-    ax.FontName = 'Arial';
-    ax.FontSize = 10;
-    xscale = max(abs(ax.XAxis.Limits));
-    yMax = ax.YAxis.Limits(2);
-    yMax = round(max(yMax)+5, -1);
-    
-    
-    plot([-xscale/5,0], [medControl, medControl], 'LineStyle', '-', 'LineWidth', 1, 'Color', colours(unitGroup,:));
-    plot([0,xscale/5], [medLaser, medLaser], 'LineStyle', '-', 'LineWidth', 1, 'Color', colours(unitGroup,:));
-    
-    plot(zeros(nUnits,1) - xscale/50, rts(:,1),...
-        'LineStyle','none', 'Marker', '*', 'Color', colours(unitGroup,:), 'MarkerSize', 2);
-    
-    plot(zeros(nUnits,1) + xscale/50, rts(:,2),...
-        'LineStyle','none', 'Marker', '*', 'Color', colours(unitGroup,:), 'MarkerSize', 2);
-    
-    
-    %leg.String = [{'Mech Control'}, {'Mech + Laser'}, {'Population Median'}];
-    ax.XAxis.Limits = [-xscale, xscale];
-    ax.YAxis.Limits = [yMin, yMax];
-    ax.YLabel.String = 'Firing Rate [Hz]';
-    ax.XTick = [];
-    %     ax.Visible = 'off';
+% xvals for proper plotting later, even when values are missing
+xvals = [];
+if hascategories && isnumeric(cats)
+    xvals = unique(cats);
 end
 
-%% Firing Rates Violin Plots - One Plot
 
-% MechResponse = clInfo.Mech_Control_15mW_MR;
-ruNames = [{'Group 1'}, {'Group 2'}, {'L6'}];
-
-
-red = [0.75, 0, 0];
-green = [0, 0.75, 0];
-blue = [0.25, 0.5, 1];
-purple = [0.5,0,0.5];
-colours = [red; green; blue];
-
-
-idxLaterTbl = ismember(clInfo.id, Later);
-idxLatestTbl = ismember(clInfo.id, Latest);
-idxL6Tbl = ismember(clInfo.id, L6);
-idxMat = [idxLaterTbl, idxLatestTbl, idxL6Tbl]; % & MechResponse;
-matDims = size(idxMat);
-nGroups = matDims(2);
-
-yMax = [max(clInfo.Mech_Control_4mW_Rate_Evoked), max(clInfo.Mech_Laser_5sec_4mW_Rate_Evoked)];
-yMax = round(max(yMax)+5, -1);
-yMin = 0;
- figure('Color', 'White', 'Name','Evoked_Rates_ViolinPlot');
-for unitGroup = 1:nGroups
-    
-    
-    unitIds = idxMat(:,unitGroup)==true;
-    nUnits = sum(unitIds);
-    rts = NaN(nUnits, 2);
-    rts(:,1) = clInfo.Laser_5sec_pulse_4mW_Block_Rate_Spont(unitIds);
-    rts(:,2) = clInfo.Laser_5sec_pulse_4mW_Block_Rate_Evoked(unitIds);
-    
-    subplot(nGroups,1,unitGroup)
-    hold on
-    
-    
-    [yCtr, xCtr] = ksdensity(rts(:,1),'Bandwidth',0.7);
-    patch(yCtr * -1,xCtr,colour(unitGroup,:),'EdgeAlpha',0.1,'FaceAlpha',0.2);
-    
-    [yCtr, xCtr] = ksdensity(rts(:,2),'Bandwidth',0.7);
-    patch(yCtr,xCtr,[0 0 1],'EdgeAlpha',0.1,'FaceAlpha',0.2);
-    
-    
-    
-%     plot(zeros(nUnits,1) - 0.0025, rts(:,1),...
-%         'LineStyle','none', 'Marker', '*', 'Color', colour(unitGroup,:), 'MarkerSize', 2);
-%     
-%     plot(zeros(nUnits,1) + 0.0025, rts(:,2),...
-%         'LineStyle','none', 'Marker', '*', 'Color', [0,0,1], 'MarkerSize', 2);
-    
-    medControl = median(rts(:,1));
-    medLaser = median(rts(:,2));
-       
-    
-    leg = legend('Mech Control','Mech Laser', 'Location','northwest');
-    leg.Box = 'off';
-    leg.Location = 'northeast';
-    
-    
-    
-    ax = gca;
-    ax.Title.String = ruNames{unitGroup};
-    ax.FontName = 'Arial';
-    ax.FontSize = 10;
-    xscale = max(abs(ax.XAxis.Limits));
-    
-    
-    
-    plot([-xscale/10,0], [medControl, medControl], 'LineStyle', '-', 'LineWidth', 1, 'Color', colour(unitGroup,:));
-    plot([0,xscale/10], [medLaser, medLaser], 'LineStyle', '-', 'LineWidth', 1, 'Color', [0,0,1]);
-    
-    plot(zeros(nUnits,1) - xscale/50, rts(:,1),...
-        'LineStyle','none', 'Marker', '*', 'Color', colour(unitGroup,:), 'MarkerSize', 2);
-    
-    plot(zeros(nUnits,1) + xscale/50, rts(:,2),...
-        'LineStyle','none', 'Marker', '*', 'Color', [0,0,1], 'MarkerSize', 2);
-    
-    
-    leg.String = [{'Mech Control'}, {'Mech + Laser'}, {'Population Median'}];
-    ax.XAxis.Limits = [-xscale, xscale];
-    %ax.YAxis.Limits = [yMin, yMax];
-    ax.YAxis.Limits(1) = 0;
-    ax.YLabel.String = 'Firing Rate [Hz]';
-    ax.XTick = [];
-    %     ax.Visible = 'off';
+%parse the optional grouporder argument
+%if it exists parse the categories order
+% but also delete it from the arguments passed to Violin
+grouporder = {};
+idx=find(strcmp(varargin, 'GroupOrder'));
+if ~isempty(idx) && numel(varargin)>idx
+    if iscell(varargin{idx+1})
+        grouporder = varargin{idx+1};
+        varargin(idx:idx+1)=[];
+    else
+        error('Second argument of ''GroupOrder'' optional arg must be a cell of category names')
+    end
 end
 
-%% Relative Rates Violin Plots
-
-mechResponse = clInfo.Mech_Control_4mW_R;
-ids = [{'L6'}, {'S1'}, {'Vpl'}];
-idxMat = [idxTagged, idxNonTagged]; % & MechResponse;
-matDims = size(idxMat);
-figure('Name', 'Relative Firing Rate Violin Plots', 'Color', 'White');
-nGroups = matDims(2);
-
-yMax = [max(clInfo.Mech_Control_4mW_Rate_Evoked_1_to_2s - clInfo.Mech_Control_4mW_Rate_Spont_1_to_2s),...
-    max(clInfo.Mech_Laser_5sec_4mW_Rate_Evoked_1_to_2s - clInfo.Mech_Laser_5sec_4mW_Rate_Spont_1_to_2s)];
-yMax = max(yMax);
-yMin = [min(clInfo.Mech_Control_4mW_Rate_Evoked_1_to_2s - clInfo.Mech_Control_4mW_Rate_Spont_1_to_2s),...
-    min(clInfo.Mech_Laser_5sec_4mW_Rate_Evoked_1_to_2s - clInfo.Mech_Laser_5sec_4mW_Rate_Spont_1_to_2s)];
-yMin = min(yMin);
-
-
-for unitGroup = 1:nGroups
-    subplot(1, nGroups, unitGroup)
-    
-    unitIds = idxMat(:,unitGroup);
-    nUnits = sum(unitIds);
-    rts = NaN(nUnits, 2);
-    rts(:,1) = clInfo.Mech_Control_4mW_Rate_Evoked_1_to_2s(unitIds) - clInfo.Mech_Control_4mW_Rate_Spont_1_to_2s(unitIds);
-    rts(:,2) = clInfo.Mech_Laser_5sec_4mW_Rate_Evoked_1_to_2s(unitIds) - clInfo.Mech_Laser_5sec_4mW_Rate_Spont_1_to_2s(unitIds);
-    
-    subplot(1,2,unitGroup)
-    hold on
-    
-    
-    [yCtr, xCtr] = ksdensity(rts(:,1),'Bandwidth',0.7);
-    patch(yCtr * -1,xCtr,[1 0 0],'EdgeAlpha',0.1,'FaceAlpha',0.2);
-    
-    [yCtr, xCtr] = ksdensity(rts(:,2),'Bandwidth',0.7);
-    patch(yCtr,xCtr,[0 0 1],'EdgeAlpha',0.1,'FaceAlpha',0.2);
-    
-    
-    
-    plot(zeros(nUnits,1) - 0.01, rts(:,1),...
-        'LineStyle','none', 'Marker', '*', 'Color', [1,0,0], 'MarkerSize', 5);
-    
-    plot(zeros(nUnits,1) + 0.01, rts(:,2),...
-        'LineStyle','none', 'Marker', '*', 'Color', [0,0,1], 'MarkerSize', 5);
-    
-    
-    
-    legend('Mech Control','Mech Laser', 'Location','northwest');
-    
-    ax = gca;
-    ax.Title.String = ids{unitGroup};
-    ax.FontName = 'Arial';
-    ax.FontSize = 25;
-    ax.YAxis.Limits = [yMin, yMax];
-    
+% check and correct the structure of ViolinColor input
+idx=find(strcmp(varargin, 'ViolinColor'));
+if ~isempty(idx) && iscell(varargin{idx+1})
+    if length(varargin{idx+1}(:))>2
+        error('ViolinColor input can be at most a two element cell array');
+    end
+elseif ~isempty(idx) && isnumeric(varargin{idx+1})
+    varargin{idx+1} = varargin(idx+1);
 end
-%% SNR Violin Plots
 
+% check and correct the structure of ViolinAlpha input
+idx=find(strcmp(varargin, 'ViolinAlpha'));
+if ~isempty(idx) && iscell(varargin{idx+1})
+    if length(varargin{idx+1}(:))>2
+        error('ViolinAlpha input can be at most a two element cell array');
+    end
+elseif ~isempty(idx) && isnumeric(varargin{idx+1})
+    varargin{idx+1} = varargin(idx+1);
+end
 
-mechResponse = clInfo.Mech_Control_4mW_R;
-ids = [{'L6'}, {'S1'}, {'Vpl'}];
-idxMat = [idxTagged, idxNonTagged]; % & MechResponse;
-matDims = size(idxMat);
-figure('Name', 'SNR Violin Plots', 'Color', 'White');
-nGroups = matDims(2);
+% tabular data
+if isa(data, 'dataset') || isstruct(data) || istable(data)
+    if isa(data, 'dataset')
+        colnames = data.Properties.VarNames;
+    elseif istable(data)
+        colnames = data.Properties.VariableNames;
+    elseif isstruct(data)
+        colnames = fieldnames(data);
+    end
+    catnames = {};
+    if isempty(grouporder)
+        for n=1:length(colnames)
+            if isnumeric(data.(colnames{n}))
+                catnames = [catnames colnames{n}]; %#ok<*AGROW>
+            end
+        end
+        catnames = sort(catnames);
+    else
+        for n=1:length(grouporder)
+            if isnumeric(data.(grouporder{n}))
+                catnames = [catnames grouporder{n}];
+            end
+        end
+    end
+    
+    for n=1:length(catnames)
+        thisData = data.(catnames{n});
+        if isempty(xvals)
+            violins(n) = Violin({thisData}, n, varargin{:});
+        else
+            violins(n) = Violin({thisData}, xvals(n), varargin{:});
+        end
+    end
+    set(gca, 'XTick', 1:length(catnames), 'XTickLabels', catnames);
+    set(gca,'Box','on');
+    return
+elseif iscell(data) && length(data(:))==2 % cell input
+    if not(size(data{1},2)==size(data{2},2))
+        error('The two input data matrices have to have the same number of columns');
+    end
+elseif iscell(data) && length(data(:))>2 % cell input
+    error('Up to two datasets can be compared');
+elseif isnumeric(data) % numeric input   
+    % 1D data, one category for each data point
+    if hascategories && numel(data) == numel(cats)    
+        if isempty(grouporder)
+            cats = categorical(cats);
+        else
+            cats = categorical(cats, grouporder);
+        end
+        
+        catnames = (unique(cats)); % this ignores categories without any data
+        catnames_labels = {};
+        for n = 1:length(catnames)
+            thisCat = catnames(n);
+            catnames_labels{n} = char(thisCat);
+            thisData = data(cats == thisCat);
+            if isempty(xvals)
+                violins(n) = Violin({thisData}, n, varargin{:});
+            else
+                violins(n) = Violin({thisData}, xvals(n), varargin{:});
+            end
+        end
+        set(gca, 'XTick', 1:length(catnames), 'XTickLabels', catnames_labels);
+        set(gca,'Box','on');
+        return
+    else
+        data = {data};
+    end
+end
 
-yMax = [max(clInfo.Mech_Control_4mW_Rate_Evoked_1_to_2s - clInfo.Mech_Control_4mW_Rate_Spont_0_to_1s),...
-    max(clInfo.Mech_Laser_5sec_4mW_Rate_Evoked_1_to_2s - clInfo.Mech_Laser_5sec_4mW_Rate_Spont_0_to_1s)];
-yMax = max(yMax);
-yMin = [min(clInfo.Mech_Control_4mW_Rate_Evoked_1_to_2s - clInfo.Mech_Control_4mW_Rate_Spont_0_to_1s),...
-    min(clInfo.Mech_Laser_5sec_4mW_Rate_Evoked_1_to_2s - clInfo.Mech_Laser_5sec_4mW_Rate_Spont_0_to_1s)];
-yMin = min(yMin);
+% 1D data, no categories
+if not(hascategories) && isvector(data{1})
+    violins = Violin(data, 1, varargin{:});
+    set(gca, 'XTick', 1);
+% 2D data with or without categories
+elseif ismatrix(data{1})
+    for n=1:size(data{1}, 2)
+        thisData = cellfun(@(x)x(:,n),data,'UniformOutput',false);
+        violins(n) = Violin(thisData, n, varargin{:});
+    end
+    set(gca, 'XTick', 1:size(data{1}, 2));
+    if hascategories && length(cats) == size(data{1}, 2)
+        set(gca, 'XTickLabels', cats);
+    end
+end
 
-for unitGroup = 1:nGroups
-    subplot(1, nGroups, unitGroup)
-    
-    unitIds = idxMat(:,unitGroup);
-    nUnits = sum(unitIds);
-    rts = NaN(nUnits, 2);
-    rts(:,1) = clInfo.Mech_Control_4mW_Rate_Evoked_1_to_2s(unitIds) - clInfo.Mech_Control_4mW_Rate_Spont_0_to_1s(unitIds);
-    rts(:,2) = clInfo.Mech_Laser_5sec_4mW_Rate_Evoked_1_to_2s(unitIds) - clInfo.Mech_Laser_5sec_4mW_Rate_Spont_0_to_1s(unitIds);
-    
-    subplot(1,2,unitGroup)
-    hold on
-    
-    
-    [yCtr, xCtr] = ksdensity(rts(:,1),'Bandwidth',0.7);
-    patch(yCtr * -1,xCtr,[1 0 0],'EdgeAlpha',0.1,'FaceAlpha',0.2);
-    
-    [yCtr, xCtr] = ksdensity(rts(:,2),'Bandwidth',0.7);
-    patch(yCtr,xCtr,[0 0 1],'EdgeAlpha',0.1,'FaceAlpha',0.2);
-    
-    
-    
-    plot(zeros(nUnits,1) - 0.01, rts(:,1),...
-        'LineStyle','none', 'Marker', '*', 'Color', [1,0,0], 'MarkerSize', 5);
-    
-    plot(zeros(nUnits,1) + 0.01, rts(:,2),...
-        'LineStyle','none', 'Marker', '*', 'Color', [0,0,1], 'MarkerSize', 5);
-    
-    
-    
-    
-    legend('Mech Control','Mech Laser', 'Location','northwest');
-    
-    ax = gca;
-    ax.Title.String = ids{unitGroup};
-    ax.FontName = 'Arial';
-    ax.FontSize = 25;
-    ax.YAxis.Limits = [yMin, yMax];
-    
+set(gca,'Box','on');
+
 end

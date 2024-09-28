@@ -39,11 +39,11 @@ ses_num = regexp(filePath,'session\d*','match','once');
 ses_num = str2double(regexp(ses_num,'\d*','match','once'));
 
 tempDir = filePath;
-rhdFile = dir(fullfile(tempDir,'*.rhd'));
+rhdFile = dir(fullfile(tempDir,'*analysis.mat'));
 iter = 1;
 while isempty(rhdFile) && iter <=3
     tempDir = fileparts(tempDir);
-    rhdFile = dir(fullfile(tempDir,'*.rhd'));
+    rhdFile = dir(fullfile(tempDir,'*analysis.mat'));
     iter = iter + 1;
     if isempty(rhdFile) && iter > 3
         error('No rhd file found.')
@@ -94,16 +94,6 @@ catch
 end
 % Sometimes empty clusters are registered, which are excluded here
 sortedData = sortedData(all(~cellfun(@isempty, sortedData),2),:);
-
-% CAVE: ONLY FOR TIME SHIFT EXPERIMENTS (DELETE WHEN NOT NECESSARY ANYMORE)
-% timeShift = 200; % in msec
-% For static time shifting
-% sortedData(:,2) = cellfun(@(x) x+timeShift/1000,sortedData(:,2),'UniformOutput',false);
-% For dynamic time shifting
-% sortedData(:,2) = cellfun(@(x) arrayfun(@(y) y+floor(y)*timeShift/1000, x),sortedData(:,2),'UniformOutput',false);
-% For jittering time shifting
-% sortedData(:,2) = cellfun(@(x) arrayfun(@(y) y+ rand()*2*timeShift/1000 - timeShift/1000, x),sortedData(:,2),'UniformOutput',false);
-
 
 str_idx = regexp(filePath,'#\d*','end');
 animalPath = filePath(1:str_idx);

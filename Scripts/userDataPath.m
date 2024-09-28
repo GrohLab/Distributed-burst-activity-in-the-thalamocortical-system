@@ -8,3 +8,12 @@ cohortPath = fullfile(documentsPath, 'Data');
 scriptFullPath = matlab.desktop.editor.getActiveFilename();
 scriptFolder = fileparts(scriptFullPath);
 save(fullfile(scriptFolder,'userDataPath.mat'),'cohortPath');
+
+% Update the session paths in the animalData.mat file
+load(fullfile(cohortPath, 'animalData.mat'))
+for animal = 1:height(animalData.cohort(12).animal(:))
+    name = animalData.cohort(12).animal(animal).animalName;
+    nameIdx = regexp(animalData.cohort(12).animal(animal).session_names{1},name,'start');
+    animalData.cohort(12).animal(animal).session_names = cellfun(@(x) fullfile(cohortPath, x(nameIdx:end)), animalData.cohort(12).animal(animal).session_names, 'UniformOutput', false);
+end
+save(fullfile(cohortPath, 'animalData.mat'),'animalData')

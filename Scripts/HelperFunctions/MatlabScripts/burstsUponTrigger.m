@@ -5,10 +5,15 @@
 % about burst on- or offsets. Load the respective "BurstinessData.mat"
 % files and the triggers, in order to calculate the trigger response.
 
-% Variables to set: fileSelection, chCond, adjustConditions, spontWindow,
-% respWindow, trigOffset
+% Variables to set: spontWindow, respWindow, trigOffset
 
 close all; clearvars; clc
+
+% Choose time windows to compare
+spontWindow = [-600,-400]; % spontaneous window in msec (default: [-600,-400])
+respWindow = [0,200]; % response window in msec (default: [0,-200])
+trigOffset = false; % for response on 'offset', set to true
+targetEstimate = true;
 
 % Change this to track changes and automatically re-run the script, if files are not up to date
 fileVersion = 2; 
@@ -114,12 +119,6 @@ condPick = listdlg('PromptString','Pick condition to analyze.', ...
     'ListSize',[300 200],'InitialValue',5,'SelectionMode','single');
 condition = prompt{condPick};
 
-% Choose time windows to compare
-spontWindow = [-1000,-800]; % spontaneous window in msec (default: [-600,-400])
-respWindow = [0,200]; % response window in msec (default: [0,-200])
-trigOffset = false; % for response on 'offset', set to true
-targetEstimate = true;
-
 assert(round(diff(respWindow),3)==round(diff(spontWindow),3),...
     'Salience_function:WindowsNotSameLength',...
     'responseWindow and spontaneousWindow must be of the same length.')
@@ -222,11 +221,11 @@ for ses = 1:numel(fileSelection)
         end
 
         tempDir = fileSelection{ses};
-        rhdFile = dir(fullfile(tempDir,'*.rhd'));
+        rhdFile = dir(fullfile(tempDir,'*analysis.mat'));
         iter = 1;
         while isempty(rhdFile) && iter <=3
             tempDir = fileparts(tempDir);
-            rhdFile = dir(fullfile(tempDir,'*.rhd'));
+            rhdFile = dir(fullfile(tempDir,'*analysis.mat'));
             iter = iter + 1;
             if isempty(rhdFile) && iter > 3
                 error('No rhd file found.')

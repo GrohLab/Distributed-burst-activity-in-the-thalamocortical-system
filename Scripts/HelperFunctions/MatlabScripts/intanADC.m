@@ -31,7 +31,6 @@ if frequency_parameters.board_dig_in_sample_rate ~= 10000
         error("Sampling rate is not dividable by 10000")
     end
     board_dig_in_data = board_dig_in_data(:,1:convers:end);
-    % dig_sample_rate = 10000;
 end
 
 digitalPunish = zeros(2, size(board_adc_data,2));

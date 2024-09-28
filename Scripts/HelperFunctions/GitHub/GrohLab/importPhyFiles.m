@@ -1,4 +1,4 @@
-function [ sortedData ] = ...
+function [ sortedData, fs ] = ...
     importPhyFiles(pathToData, outputName, removeNoise)
 %IMPORTPHYFILES reads the files created by both Kilosort and Phy or Phy2
 %and, depending on the flag configurations, it saves a .mat file. The
@@ -25,32 +25,65 @@ MX_CLSS = 3;
 % Take Kilosort Data and create *all_channels.map for further analysis
 
 % What is your outputfile called
-if ~exist('outputName','var') || isempty(outputName)
-    binFile = dir(fullfile(pathToData,'*.bin'));
-    binName = binFile(1).name;[~,bfName,fExt] = fileparts(binName);
-    outputName = strrep(bfName,fExt,'');
+if exist(fullfile(pathToData,'recording.dat'),'file') && ~exist('outputName','var')
+    outputName = 'recording';
+elseif ~exist('outputName','var')
+
+    tempDir = pathToData;
+    rhdFile = dir(fullfile(tempDir,'*analysis.mat'));
+    iter = 1;
+    while isempty(rhdFile) && iter <=3
+        tempDir = fileparts(tempDir);
+        rhdFile = dir(fullfile(tempDir,'*analysis.mat'));
+        iter = iter + 1;
+        if isempty(rhdFile) && iter > 3
+            error('No rhd file found.')
+        end
+    end
+    outputName = strrep(rhdFile(1).name,'analysis.mat','');
 end
 % Input sampling frequency (not written in the phy files from KiloSort)
 try
-    load(fullfile( pathToData, [outputName, '_sampling_frequency.mat']),...
+    load(fullfile( pathToData, [char(outputName), '_sampling_frequency.mat']),...
         'fs')
-catch LE
-    disp( LE.message)
-    fsString = inputdlg('Please provide a sampling frequency:');
+catch
+    
     try
-        fs = str2double(fsString{1});
-        if isnan(fs)
-            fprintf('I''m sorry... you should put in ONLY NUMBERS :)\nStart again\n')
-            fprintf('No output file written\n')
-            return
+        load(fullfile(pathToData,'rez.mat'),'rez')
+        fs = rez.ops.fs;
+    catch
+        
+        try
+            settings = parseXML(fullfile(pathToData,'settings.xml'));
+            idx = contains({settings.Attributes.Name},'SampleRateHertz');
+            fs = str2double(settings.Attributes(idx).Value);
+        catch
+            
+            try
+                text = fileread(fullfile(pathToData,'params.py'));
+                fs = str2double(regexp(regexp(text, 'sample_rate = \d*', 'match','once'),'\d*','match'));
+            catch LE
+                disp( LE.message)
+                fsString = inputdlg('Please provide a sampling frequency:');
+                
+                try
+                    fs = str2double(fsString{1});
+                    if isnan(fs)
+                        fprintf('I''m sorry... you should put in ONLY NUMBERS :)\nStart again\n')
+                        fprintf('No output file written\n')
+                        return
+                    end
+                catch
+                    fprintf(1,'Cancel button pressed. ')
+                    fprintf(1,'Transforming the files might help you get the sampling ')
+                    fprintf(1,'frequency.\n');
+                    return
+                end
+            end
         end
-    catch 
-        fprintf(1,'Cancel button pressed. ')
-        fprintf(1,'Transforming the files might help you get the sampling ')
-        fprintf(1,'frequency.\n');
-        return
     end
-    save(fullfile( pathToData, [outputName, '_sampling_frequency.mat']),...
+    
+    save(fullfile( pathToData, [char(outputName), '_sampling_frequency.mat']),...
         'fs')
 end
 
@@ -62,15 +95,16 @@ end
 % Reading the KiloSort datafiles (phy updates these files)
 spkTms = readNPY(fullfile(pathToData, 'spike_times.npy'));
 clID = readNPY(fullfile(pathToData, 'spike_clusters.npy'));
-clGr = readTSV(fullfile(pathToData,'cluster_group.tsv'));
-% Preparing the information file to get cluster location
-fClInfoID = fopen(fullfile(pathToData, 'cluster_info.tsv'), 'r');
-if fClInfoID <= 0
-    fprintf(1,'There is an issue with reading:\n - ''%s'' -\n',...
-        fullfile(pathToData, 'cluster_info.tsv'))
-    fprintf(1, 'No file written!\n')
-    fclose(fClInfoID);
-    return
+
+if exist(fullfile(pathToData,'cluster_group.tsv.v2'),'file')
+    clGr = readTSV(fullfile(pathToData,'cluster_group.tsv.v2'));
+else
+    clGr = readTSV(fullfile(pathToData,'cluster_group.tsv'));
+end
+
+if ~exist(fullfile(pathToData, 'cluster_info.tsv'),'file')
+    fprintf('\nNo cluster_info.tsv file.\n')
+    fprintf('\nAssuming automated curation...\n')
 end
 
 % Creating a logical index for the user labels
@@ -86,7 +120,7 @@ for ccln = 1:numel(allClusters)
     spkIdx = clID == clGr{ccln,1};
     spkCell(ccln) = {double(spkTms(spkIdx))/fs};
 end
-fclose(fClInfoID);
+
 row = find(grIdx');
 [r,col2] = ind2sub(size(grIdx),row);
 [~,rearrange] = sort(r);
@@ -102,7 +136,7 @@ sortedData = cat(2,allClusters,spkCell,num2cell(clGroup));
 if removeNoise
     sortedData(nIdx,:) = [];
 end
-filename = [outputName, '_all_channels.mat'];
+filename = [char(outputName), '_all_channels.mat'];
 fname = fullfile(pathToData, filename);
 if exist(fname, 'file')
     saveAns = questdlg(sprintf('%s exists already! Overwrite?',filename),...

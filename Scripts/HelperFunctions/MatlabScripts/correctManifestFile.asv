@@ -1,6 +1,7 @@
 function correctManifestFile(manifest_file, attributes_file)
 % Some manifest files, created by syntalos (especially the ones that were
-% created between 2021-05-18 and 2021-06-15), have false timestamp indices (data_aux.parts).
+% created between 2021-05-18 and 2021-06-15), have false timestamp indices
+% ("data_aux.parts).
 % This function serves as to correct these errors.
 
 manifest_struct = read(manifest_file);

@@ -9,6 +9,10 @@ close all
 clearvars
 clc
 
+spontWindow = [-0.6,-0.4]; % spontaneous window in sec (default: [-0.6,-0.4])
+respWindow = [0,0.2]; % response window in sec (default: [0,0.2])
+trigOffset = false; % for response on 'offset', set to true (default: false)
+
 % This is a quick solution for providing only the automatedCuration
 % directories. For more general usage, create an "analyzed_files.mat" file
 % for the StimulusResponse_Analysis script.
@@ -72,10 +76,6 @@ if tf
 else
     return
 end
-
-spontWindow = [-0.6,-0.4]; % spontaneous window in sec (default: [-0.6,-0.4])
-respWindow = [0,0.2]; % response window in sec (default: [0,0.2])
-trigOffset = false; % for response on 'offset', set to true (default: false)
 
 assert(round(diff(respWindow),3)==round(diff(spontWindow),3),...
     'Salience_function:WindowsNotSameLength',...
@@ -198,20 +198,6 @@ for ses = 1:height(fileSelection)
     else
 
         try
-
-            tempDir = basePath;
-            rhdFile = dir(fullfile(tempDir,'*.rhd'));
-            iter = 1;
-            while isempty(rhdFile) && iter <=3
-                tempDir = fileparts(tempDir);
-                rhdFile = dir(fullfile(tempDir,'*.rhd'));
-                iter = iter + 1;
-                if isempty(rhdFile) && iter > 3
-                    error('No rhd file found.')
-                end
-            end
-            intanDir = rhdFile(1).folder;
-            intanPath = fullfile(intanDir,rhdFile(1).name);
 
             % For session name
             stageCount = regexp(basePath,'P3.[0-9.]*','match','once');

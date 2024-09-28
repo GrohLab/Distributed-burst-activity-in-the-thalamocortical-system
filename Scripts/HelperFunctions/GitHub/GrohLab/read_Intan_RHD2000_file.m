@@ -1,4 +1,4 @@
-function read_Intan_RHD2000_file
+function read_Intan_RHD2000_file(varargin)
 
 % read_Intan_RHD2000_file
 %
@@ -17,8 +17,19 @@ function read_Intan_RHD2000_file
 % >> amplifier_channels(1)
 % >> plot(t_amplifier, amplifier_data(1,:))
 
-[file, path, filterindex] = ...
-    uigetfile('*.rhd', 'Select an RHD2000 Data File', 'MultiSelect', 'off');
+% If user calls with specific filename, skip questionnaire
+if nargin == 0
+    [file, path, ~] = ...
+    uigetfile('Z:\Filippo\Animals\*.rhd', 'Select an RHD2000 Data File', 'MultiSelect', 'off');
+else
+    [path, name, ext] = fileparts(varargin{nargin});
+    if ~strcmp(ext,'.rhd')
+        disp("Chose an rhd file")
+        return 
+    end
+    path = convertStringsToChars(path);
+    file = convertStringsToChars(strcat(name,ext));
+end
 
 if (file == 0)
     return;
@@ -30,7 +41,7 @@ end
 % file = d(end).name;
 
 tic;
-filename = [path,file];
+filename = fullfile(path,file);
 fid = fopen(filename, 'r');
 
 s = dir(filename);
@@ -461,62 +472,62 @@ end
 
 % new for version 2.01: move filename info to base workspace
 filename = file;
-move_to_base_workspace(filename);
-move_to_base_workspace(path);
+move_to_base_workspace(filename, path);
+move_to_base_workspace(path, path);
 
-move_to_base_workspace(notes);
-move_to_base_workspace(frequency_parameters);
+move_to_base_workspace(notes, path);
+move_to_base_workspace(frequency_parameters, path);
 if (data_file_main_version_number > 1)
-    move_to_base_workspace(reference_channel);
+    move_to_base_workspace(reference_channel, path);
 end
 
 if (num_amplifier_channels > 0)
-    move_to_base_workspace(amplifier_channels);
+    move_to_base_workspace(amplifier_channels, path);
     if (data_present)
-        move_to_base_workspace(amplifier_data);
-        move_to_base_workspace(t_amplifier);
+        move_to_base_workspace(amplifier_data, path);
+        move_to_base_workspace(t_amplifier, path);
     end
-    move_to_base_workspace(spike_triggers);
+    move_to_base_workspace(spike_triggers, path);
 end
 if (num_aux_input_channels > 0)
-    move_to_base_workspace(aux_input_channels);
+    move_to_base_workspace(aux_input_channels, path);
     if (data_present)
-        move_to_base_workspace(aux_input_data);
-        move_to_base_workspace(t_aux_input);
+        move_to_base_workspace(aux_input_data, path);
+        move_to_base_workspace(t_aux_input, path);
     end
 end
 if (num_supply_voltage_channels > 0)
-    move_to_base_workspace(supply_voltage_channels);
+    move_to_base_workspace(supply_voltage_channels, path);
     if (data_present)
-        move_to_base_workspace(supply_voltage_data);
-        move_to_base_workspace(t_supply_voltage);
+        move_to_base_workspace(supply_voltage_data, path);
+        move_to_base_workspace(t_supply_voltage, path);
     end
 end
 if (num_board_adc_channels > 0)
-    move_to_base_workspace(board_adc_channels);
+    move_to_base_workspace(board_adc_channels, path);
     if (data_present)
-        move_to_base_workspace(board_adc_data);
-        move_to_base_workspace(t_board_adc);
+        move_to_base_workspace(board_adc_data, path);
+        move_to_base_workspace(t_board_adc, path);
     end
 end
 if (num_board_dig_in_channels > 0)
-    move_to_base_workspace(board_dig_in_channels);
+    move_to_base_workspace(board_dig_in_channels, path);
     if (data_present)
-        move_to_base_workspace(board_dig_in_data);
-        move_to_base_workspace(t_dig);
+        move_to_base_workspace(board_dig_in_data, path);
+        move_to_base_workspace(t_dig, path);
     end
 end
 if (num_board_dig_out_channels > 0)
-    move_to_base_workspace(board_dig_out_channels);
+    move_to_base_workspace(board_dig_out_channels, path);
     if (data_present)
-        move_to_base_workspace(board_dig_out_data);
-        move_to_base_workspace(t_dig);
+        move_to_base_workspace(board_dig_out_data, path);
+        move_to_base_workspace(t_dig, path);
     end
 end
 if (num_temp_sensor_channels > 0)
     if (data_present)
-        move_to_base_workspace(temp_sensor_data);
-        move_to_base_workspace(t_temp_sensor);
+        move_to_base_workspace(temp_sensor_data, path);
+        move_to_base_workspace(t_temp_sensor, path);
     end
 end
 
@@ -618,7 +629,7 @@ end
 return
 
 
-function move_to_base_workspace(variable)
+function move_to_base_workspace(variable,path)
 
 % move_to_base_workspace(variable)
 %
@@ -627,6 +638,12 @@ function move_to_base_workspace(variable)
 
 variable_name = inputname(1);
 assignin('base', variable_name, variable);
-
+if ismember(variable_name,{'frequency_parameters','board_adc_data','board_dig_in_data'})
+    S.(variable_name) = variable;
+    if ~exist(fullfile(path,'intanVariables.mat'),'file')
+        save(fullfile(path,'intanVariables.mat'),'-struct', 'S')
+    else
+        save(fullfile(path,'intanVariables.mat'),'-struct', 'S','-append')
+    end
+end
 return;
-
