@@ -2,7 +2,7 @@
 
 % This assumes that the Data dir is saved in the default Documents dir
 documentsPath = fullfile(getenv('USERPROFILE'), 'Documents');
-cohortPath = fullfile(documentsPath, 'Data');
+cohortPath = fullfile(documentsPath, 'Distributed-burst-activity-in-the-thalamocortical-system/Data');
 
 % Extract the folder path of this script to save the variable
 scriptFullPath = matlab.desktop.editor.getActiveFilename();
