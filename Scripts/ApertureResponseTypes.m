@@ -2,7 +2,10 @@
 close all; clearvars; clc;
 % Make the user pick the two "ResponsePattern" mat files to compare
 scriptFullPath = matlab.desktop.editor.getActiveFilename();
-load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\\userDataPath.mat'), 'cohortPath');
+try load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\\userDataPath.mat'), 'cohortPath');
+catch
+    error('No userDataPath.mat file found. Run the userDataPath.m file first.')
+end
 startPath = fullfile(cohortPath,'Analysis-Figures\Burstiness-Analysis');
 
 burstResponses = cell(1,2);

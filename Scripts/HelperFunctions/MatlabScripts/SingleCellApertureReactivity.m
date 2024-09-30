@@ -17,7 +17,10 @@ trigOffset = false; % for response on 'offset', set to true (default: false)
 % directories. For more general usage, create an "analyzed_files.mat" file
 % for the StimulusResponse_Analysis script.
 scriptFullPath = matlab.desktop.editor.getActiveFilename();
-load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\\userDataPath.mat'), 'cohortPath');
+try load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\\userDataPath.mat'), 'cohortPath');
+catch
+    error('No userDataPath.mat file found. Run the userDataPath.m file first.')
+end
 load(fullfile(cohortPath,'allFiles.mat'),'FileInfo')
 updatedFolders = fullfile(cohortPath,{FileInfo.folder});
 [FileInfo.folder] = deal(updatedFolders{:});

@@ -10,15 +10,10 @@
 	V) 'Image Processing Toolbox'
 
 | File | Description |
-|----------|----------|
-| StimulusResponse_Analysis.m                | Get the StimulusResponse variable                                                     |
-| DE_Salience_function.m                     | Get the waveforms_all.mat and allResponses.mat variables                              |
-| getBurstiness.m                            | Get the BurstinessData.mat variable                                                   |
-| burstsUponTrigger.m                        | Get the ResponsePattern variable							     |
-| ApertureResponseTypes.m                    | Get the responseTypes variable and generate the burstiness scatters (Fig. 3b)	     |	
-| ApertureResponseTypes_Comparison.m         | For comparing the burstiness bias of individual cells (Fig. 3c, 5a)		     |
-| ApertureResponseTypes_StageProgression.m   | To calculate the burstiness stage progression (Fig. 5b,c)			     |
-| DecodingWithIncreasingUnitNum_Analysis.m   | To calculate the decoding accuracy (Fig. 6a-d)					     |
-| DecodingWithIncreasingUnitNum_Plotting.m   | To plot the decoding accuracy (Fig. 6a-d)					     |
-| SingleCellApertureReactivity.m             | Necessary for running the singleUnitBurstinessAnalysis.m script			     |
-| singleUnitBurstinessAnalysis.m             | For population PSTHs (Fig. 2b,e)							     |
+|--------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
+| userDataPath.m		             | Sets the path to the data (assuming the default Documents dir as a default). Run before running other scripts.		    |
+| singleUnitBurstinessAnalysis.m             | Analyzes the burstiness and firing rates of single units, generating plots showing PSTHs (Fig. 2b,e).   			    |
+| ApertureResponseTypes.m                    | Analyzes burst indices from different brain areas and conditions (Fig. 3b).						    |
+| ApertureResponseTypes_Comparison.m         | Compares the burst biases of individual cells from different brain areas (Fig. 3c, 5a).		                   	    |
+| ApertureResponseTypes_StageProgression.m   | Visualizes the progression of burst bias and the proportion of burst-responding cells as a function of learning (Fig. 5b,c). |
+| DecodingWithIncreasingUnitNum_Plotting.m   | Visualizes the performance of decoding analysis with increasing number of units for different recording areas (Fig. 6a-d).   |

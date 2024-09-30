@@ -16,7 +16,10 @@ timeLapse = [-800,800]; % total time window in msec
 
 % Choose sessions to merge together
 scriptFullPath = matlab.desktop.editor.getActiveFilename();
-load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\\userDataPath.mat'), 'cohortPath');
+try load(regexprep(scriptFullPath, 'Scripts.*', 'Scripts\\userDataPath.mat'), 'cohortPath');
+catch
+    error('No userDataPath.mat file found. Run the userDataPath.m file first.')
+end
 try
     load(fullfile(cohortPath, 'animalData.mat'))
     load(fullfile(cohortPath, 'allFiles.mat'),'FileInfo')
