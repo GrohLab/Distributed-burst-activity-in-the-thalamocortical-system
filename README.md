@@ -1,4 +1,4 @@
-#### Extended data for Heimburg et al. (2024). Distributed burst activity in the thalamocortical system as a contextual learning signal.
+#### Extended data for Heimburg et al. (2024). Distributed burst activity in the thalamocortical system anchors associative memories during learning
 
 **Data**: The dataset is accessible for download in two formats: a version with all necessary data for MATLAB scripts and a Neurodata Without Borders (NWB) format for broader compatibility and ease of use across platforms. For MATLAB usage, download the files and specify the directory path in the userDataPath.mat file located in the ".\Scripts" folder. The path to the data should be assigned as a MATLAB variable ("cohortPath") for script functionality.
 
